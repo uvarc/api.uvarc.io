@@ -1,5 +1,5 @@
 import sys
 
-sys.path.append('/var/www/shiny-api')
+sys.path.append('/var/www/api.uvarc.io')
 
 from run import app as application

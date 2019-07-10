@@ -9,7 +9,6 @@ import datetime
 import random
 import string
 from flask import Flask, jsonify, request, abort, make_response
-import logme
 
 app = Flask(__name__)
 
