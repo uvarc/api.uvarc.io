@@ -25,6 +25,19 @@ def index():
     'message': 'make a resource request'}
   ), 200)
 
+@app.route('/support', methods=['POST'])
+def support():
+  name = request.form['name']
+  email = request.form['email']
+  uid = request.form['uid']
+  return make_response(jsonify(
+    {'status': '200 OK',
+    'name': name,
+    'email': email,
+    'uid': uid,
+    'message': 'make a resource request'}
+  ), 200)
+
 if __name__ == '__main__':
   app.run()
   # app.run(debug=True,host='0.0.0.0')
