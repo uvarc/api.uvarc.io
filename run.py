@@ -10,6 +10,21 @@ import random
 import string
 from flask import Flask, jsonify, request, abort, make_response
 
+### ToDo ###
+#
+# 1. POST handler required for SUPPORT endpoint
+#      https://staging.rc.virginia.edu/form/support-request/?email=bmVtMnBAdmlyZ2luaWEuZWR1&uid=bmVtMnA&name=TmVhbCBNYWdlZQ
+# 2. POST handler required for CONSULTATION endpoint
+#      https://staging.rc.virginia.edu/form/consult/?email=bmVtMnBAdmlyZ2luaWEuZWR1&uid=bmVtMnA&name=TmVhbCBNYWdlZQ
+# 3. POST handler required for ALLOCATIONS forms:
+#      - Standard
+#      - Purchased
+#      - Instructional
+#      - Administrative (given by research deans)
+#    https://staging.rc.virginia.edu/userinfo/rivanna/allocations/
+#
+###########
+
 app = Flask(__name__)
 
 def unauthorized():
