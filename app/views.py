@@ -51,7 +51,8 @@ def general_support_request():
 
 
 @app.route('/rest/hpc-allocation-request/', methods=['POST'])
-@limiter.limit("5 per hour")
+@limiter.limit("6 per hour")
+@limiter.limit("1 per minute")
 def hpc_allocation_request():
     try:
       request_form = dict(request.form)

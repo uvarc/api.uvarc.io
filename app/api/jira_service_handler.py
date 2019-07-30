@@ -6,7 +6,7 @@ import requests
 class JiraServiceHandler:
     def __init__(self, app):
         self._auth = (app.config['JIRA_CONN_INFO']['CLIENT_ID'],
-                      app.config['JIRA_CONN_INFO']['PASSWORD'])
+            app.config['JIRA_CONN_INFO']['PASSWORD'])
         self._connect_host_url = 'https://{}:{}/rest/'.\
             format(app.config['JIRA_CONN_INFO']['HOST'],
                    app.config['JIRA_CONN_INFO']['PORT'])
@@ -16,9 +16,9 @@ class JiraServiceHandler:
 
     def createNewTicket(self,
                         reporter=None,
-                        participants=None,
-                        project_name='GENERAL_SUPPORT',
-                        request_type='GENERAL_SUPPORT_GET_IT_HELP',
+                        participants = None,
+                        project_name = 'GENERAL_SUPPORT',
+                        request_type = 'GENERAL_SUPPORT_GET_IT_HELP',
                         summary=None,
                         desc=None):
         if(reporter == None):
@@ -38,7 +38,7 @@ class JiraServiceHandler:
                 "raiseOnBehalfOf": reporter
             }
         )
-        r = requests.post(''.join([self._connect_host_url, 'servicedeskapi/request']),
+        r = requests.post(''.join([self._connect_host_url,'servicedeskapi/request']),
                           headers=headers,
                           data=payload,
                           auth=self._auth)
