@@ -59,7 +59,7 @@ def general_support_request():
 @limiter.limit("1 per minute")
 def hpc_allocation_request():
     try:
-      request_form = dict(request.form)
+      request_form = dict(request.form.items())
       request_form['category'] = "Rivanna HPC"
 
       response = json.loads(_create_jira_support_request(request_form))
