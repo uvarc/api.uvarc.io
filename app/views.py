@@ -75,5 +75,5 @@ def hpc_allocation_request():
     except Exception as ex:
       return make_response(jsonify(
         {"status": "error",
-         "message": "Error submitting general support request : {}".format(str(ex))}
+         "message": "Error submitting HPC allocation request : {}".format(str(ex))}
       ), 501)
