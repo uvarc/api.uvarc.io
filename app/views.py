@@ -19,12 +19,16 @@ def unauthorized():
 def _create_jira_support_request(form_elements_dict):
   jira_service_handler = JiraServiceHandler(app)
   project_ticket_route = app.config['JIRA_CATEGORY_PROJECT_ROUTE_DICT'][form_elements_dict['category'].strip()]
+  descStr = ''
+  for attrib in sorted(form_elements_dict):
+    descStr = ''.join([descStr,'{}={}\n'.format(attrib.upper(),form_elements_dict[attrib.upper()])])
+
   return jira_service_handler.createNewTicket(
     reporter = form_elements_dict['uid'],
     project_name = project_ticket_route[0],
     request_type = project_ticket_route[1],
     summary = 'Customer request for {}'.format(form_elements_dict['category']),
-    desc = '\n'.join([f'{attrib.upper()}: {value}' for attrib, value in sorted(form_elements_dict.items())])
+    desc = descStr
   )
 
 
