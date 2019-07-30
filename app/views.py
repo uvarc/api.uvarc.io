@@ -1,0 +1,74 @@
+import json
+import copy
+
+from flask import abort, g, jsonify, make_response, redirect, request, url_for
+
+import boto3
+import flask_restful
+from app import app, auth, sso, limiter
+from botocore.exceptions import ClientError
+from flask_restful import reqparse
+from app.api.jira_service_handler import JiraServiceHandler
+
+def unauthorized():
+    return make_response(jsonify(
+        {"status": "error",
+         "message": "unauthorized"}
+    ), 401)
+
+def _create_jira_support_request(form_elements_dict):
+  jira_service_handler = JiraServiceHandler(app)
+  project_ticket_route = app.config['JIRA_CATEGORY_PROJECT_ROUTE_DICT'][form_elements_dict['category'].strip()]
+  return jira_service_handler.createNewTicket(
+    reporter = form_elements_dict['uid'],
+    project_name = project_ticket_route[0],
+    request_type = project_ticket_route[1],
+    summary = 'Customer request for {}'.format(form_elements_dict['category']),
+    desc = '\n'.join([f'{attrib.upper()}: {value}' for attrib, value in sorted(form_elements_dict.items())])
+  )
+
+
+@app.route('/rest/general-support-request/', methods=['POST'])
+@limiter.limit("6 per hour")
+@limiter.limit("2 per minute")
+def general_support_request():
+    try:
+      response = json.loads(_create_jira_support_request(request.form))
+
+      return make_response(jsonify(
+          {'status': '200 OK',
+          'ticket_id': response['issueKey'],
+          'name' : request.form['name'],
+          'email': request.form['email'],
+          'uid': request.form['uid'],
+          'message': 'General support request successfully submitted'}
+      ), 200)
+    except Exception as ex:
+      return make_response(jsonify(
+        {"status": "error",
+         "message": "Error submitting general support request "}
+      ), 501)
+
+
+@app.route('/rest/hpc-allocation-request/', methods=['POST'])
+@limiter.limit("5 per hour")
+def hpc_allocation_request():
+    try:
+      request_form = dict(request.form)
+      request_form['category'] = "Rivanna HPC"
+
+      response = json.loads(_create_jira_support_request(request_form))
+
+      return make_response(jsonify(
+          {'status': '200 OK',
+          'ticket_id': response['issueKey'],
+          'name' : request.form['name'],
+          'email': request.form['email'],
+          'uid': request.form['uid'],
+          'message': 'HPC allocation request successfully submitted'}
+      ), 200)
+    except:
+      return make_response(jsonify(
+        {"status": "error",
+         "message": "Error submitting hpc allocation request "}
+      ), 501)
