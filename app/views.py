@@ -50,7 +50,7 @@ def general_support_request():
     except Exception as ex:
       return make_response(jsonify(
         {"status": "error",
-         "message": "Error submitting general support request "}
+         "message": "Error submitting general support request : {}".format(str(ex))}
       ), 501)
 
 
@@ -72,8 +72,8 @@ def hpc_allocation_request():
           'uid': request.form['uid'],
           'message': 'HPC allocation request successfully submitted'}
       ), 200)
-    except:
+    except Exception as ex:
       return make_response(jsonify(
         {"status": "error",
-         "message": "Error submitting hpc allocation request "}
+         "message": "Error submitting general support request : {}".format(str(ex))}
       ), 501)
