@@ -12,8 +12,8 @@ class JiraServiceHandler:
                    app.config['JIRA_CONN_INFO']['PORT'])
         self._default_reporter = app.config['JIRA_CONN_INFO']['CLIENT_ID']
         self._project_info_lookup_dict = app.config['JIRA_PROJECT_INFO_LOOKUP']
-        self._project_request_type_lookup_dict = app.config
-        ['JIRA_PROJECT_REQUEST_TYPE_LOOKUP']
+        self._project_request_type_lookup_dict =\
+            app.config['JIRA_PROJECT_REQUEST_TYPE_LOOKUP']
 
     def createNewTicket(self,
                         reporter=None,

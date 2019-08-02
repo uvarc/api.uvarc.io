@@ -26,6 +26,7 @@ Flask-Limiter==1.0.1
 flask-marshmallow==0.7.0
 Flask-RESTful==0.3.6
 Flask-SSO==0.4.0
+furl==2.0.0
 hyperlink==18.0.0
 idna==2.8
 incremental==17.5.0
@@ -41,6 +42,7 @@ Mako==1.0.7
 MarkupSafe==1.1.1
 marshmallow==2.15.1
 mccabe==0.6.1
+orderedmultidict==1.0.1
 parsel==1.5.1
 pep8==1.7.1
 psycopg2==2.7.5

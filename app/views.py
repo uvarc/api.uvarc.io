@@ -1,7 +1,8 @@
 import json
 
-from flask import jsonify, make_response, request
+from flask import jsonify, make_response, request, redirect
 
+import furl
 from app import app, limiter
 from app.api.jira_service_handler import JiraServiceHandler
 
@@ -15,8 +16,9 @@ def unauthorized():
 
 def _create_jira_support_request(form_elements_dict):
     jira_service_handler = JiraServiceHandler(app)
-    project_ticket_route = app.config['JIRA_CATEGORY_PROJECT_ROUTE_DICT']
-    [form_elements_dict['category'].strip()]
+    project_ticket_route =\
+        app.config['JIRA_CATEGORY_PROJECT_ROUTE_DICT'][
+            form_elements_dict['category'].strip().title()]
     descStr = ''
     for attrib in sorted(form_elements_dict):
         descStr = ''.join([descStr, '{}={}\n'.format(
@@ -37,27 +39,19 @@ def _create_jira_support_request(form_elements_dict):
 @limiter.limit("2 per minute")
 def general_support_request():
     try:
+        f = furl.furl(request.referrer)
+        f.remove(['ticket_id', 'message', 'status'])
         response = json.loads(_create_jira_support_request(request.form))
 
-        return make_response(jsonify(
-            {
-                'status': '200 OK',
-                'ticket_id': response['issueKey'],
-                'name': request.form['name'],
-                'email': request.form['email'],
-                'uid': request.form['uid'],
-                'message': 'General support request successfully submitted'
-            }
-        ), 200)
+        return redirect(
+            ''.join([f.url, '&status=', '200 OK', '&', 'message=',
+                     'Support request ({}) successfully '
+                     'created'.format(response['issueKey'])]), code=307)
     except Exception as ex:
-        return make_response(jsonify(
-            {
-                "status": "error",
-                "message":
-                    "Error submitting general support request : {}".format(
-                        str(ex))
-            }
-        ), 501)
+        return redirect(
+            ''.join([f.url, '&status=', 'error', '&', 'message=',
+                     'Error submitting support '
+                     'request: {}'.format(str(ex))]), code=307)
 
 
 @app.route('/rest/hpc-allocation-request/', methods=['POST'])
@@ -65,26 +59,19 @@ def general_support_request():
 @limiter.limit("1 per minute")
 def hpc_allocation_request():
     try:
+        f = furl.furl(request.referrer)
+        f.remove(['ticket_id', 'message', 'status'])
         request_form = dict(request.form.items())
         request_form['category'] = "Rivanna HPC"
 
         response = json.loads(_create_jira_support_request(request_form))
 
-        return make_response(jsonify(
-            {
-                'status': '200 OK',
-                'ticket_id': response['issueKey'],
-                'name': request.form['name'],
-                'email': request.form['email'],
-                'uid': request.form['uid'],
-                'message': 'HPC allocation request successfully submitted'
-            }
-        ), 200)
+        return redirect(
+            ''.join([f.url, '&status=', '200 OK', '&', 'message=',
+                     'HPC Allocation request ({}) successfully '
+                     'created'.format(response['issueKey'])]), code=307)
     except Exception as ex:
-        return make_response(jsonify(
-            {
-                "status": "error",
-                "message":
-                "Error submitting HPC allocation request : {}".format(str(ex))
-            }
-        ), 501)
+        return redirect(
+            ''.join([f.url, '&status=', 'error', '&', 'message=',
+                     'Error submitting HPC Allocation '
+                     'request: {}'.format(str(ex))]), code=307)
