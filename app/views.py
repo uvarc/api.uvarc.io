@@ -46,12 +46,12 @@ def general_support_request():
         return redirect(
             ''.join([f.url, '&status=', '200 OK', '&', 'message=',
                      'Support request ({}) successfully '
-                     'created'.format(response['issueKey'])]), code=307)
+                     'created'.format(response['issueKey'])]))
     except Exception as ex:
         return redirect(
             ''.join([f.url, '&status=', 'error', '&', 'message=',
                      'Error submitting support '
-                     'request: {}'.format(str(ex))]), code=307)
+                     'request: {}'.format(str(ex))]))
 
 
 @app.route('/rest/hpc-allocation-request/', methods=['POST'])
@@ -69,9 +69,9 @@ def hpc_allocation_request():
         return redirect(
             ''.join([f.url, '&status=', '200 OK', '&', 'message=',
                      'HPC Allocation request ({}) successfully '
-                     'created'.format(response['issueKey'])]), code=307)
+                     'created'.format(response['issueKey'])]))
     except Exception as ex:
         return redirect(
             ''.join([f.url, '&status=', 'error', '&', 'message=',
                      'Error submitting HPC Allocation '
-                     'request: {}'.format(str(ex))]), code=307)
+                     'request: {}'.format(str(ex))]))
