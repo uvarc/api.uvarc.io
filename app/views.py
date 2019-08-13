@@ -19,10 +19,22 @@ def _create_jira_support_request(form_elements_dict):
     project_ticket_route =\
         app.config['JIRA_CATEGORY_PROJECT_ROUTE_DICT'][
             form_elements_dict['category'].strip().title()]
+    submitted_attribs = list(form_elements_dict)
     descStr = ''
-    for attrib in sorted(form_elements_dict):
-        descStr = ''.join([descStr, '{}={}\n'.format(
-            str(attrib).upper(), form_elements_dict[attrib])])
+    format_attribs_order = ['name', 'email', 'uid',
+                            'department', 'category', 'description']
+    for attrib in format_attribs_order:
+        if(attrib in submitted_attribs):
+            descStr = ''.join([descStr, '{}: {}\n'.format(
+                str(attrib).strip().title(), form_elements_dict[attrib])])
+            submitted_attribs.remove(attrib)
+
+    drop_attribs = ['op']
+    submitted_attribs = list(set(submitted_attribs) - set(drop_attribs))
+
+    for attrib in sorted(submitted_attribs):
+        descStr = ''.join([descStr, '{}: {}\n'.format(
+            str(attrib).strip().title(), form_elements_dict[attrib])])
 
     return jira_service_handler.createNewTicket(
         reporter=form_elements_dict['uid'],

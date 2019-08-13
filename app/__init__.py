@@ -52,4 +52,5 @@ def stop():
     else:
         print('Server is not running.')
 
+
 from app import views
