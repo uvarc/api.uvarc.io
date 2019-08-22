@@ -49,6 +49,25 @@ JIRA_CATEGORY_PROJECT_ROUTE_DICT = {
     'Licensed Research Software':
         (JIRA_PROJECTS[2], JIRA_PROJECT_REQUEST_TYPES[2]),
     'Storage': (JIRA_PROJECTS[2], JIRA_PROJECT_REQUEST_TYPES[2]),
+    'Deans Allocation': (JIRA_PROJECTS[0], JIRA_PROJECT_REQUEST_TYPES[0]),
     'Consultation': (JIRA_PROJECTS[2], JIRA_PROJECT_REQUEST_TYPES[2]),
     'Other': (JIRA_PROJECTS[2], JIRA_PROJECT_REQUEST_TYPES[2]),
+}
+
+
+# SMTP Email Settings
+MAIL_SERVER = conn_info["SMTP"]["HOSTS"][0]
+MAIL_PORT = conn_info["SMTP"]["PORT"]
+MAIL_USERNAME = conn_info["SMTP"]["CLIENT_ID"]
+MAIL_PASSWORD = conn_info["SMTP"]["CLIENT_SECRET"]
+MAIL_USE_SSL = False
+MAIL_USE_TLS = False
+MAIL_TIMEOUT = 10
+MAIL_SECRET_KEY = conn_info["SMTP"]["SECURE_KEY"]
+
+ALLOCATION_SPONSOR_EMAIL_LOOKUP = {
+    'cas': 'rkc7h@virginia.edu',
+    'seas': 'nem2p@virginia.edu',
+    'dsi': 'amb3xa@virginia.edu',
+    'other': 'amb3xa@virginia.edu'
 }

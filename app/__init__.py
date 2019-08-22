@@ -11,6 +11,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_marshmallow import Marshmallow
 from flask_sso import SSO
+from app.api.email_service_handler import EmailService
 
 
 app = Flask(__name__, instance_relative_config=True)
@@ -28,6 +29,9 @@ if(app.config['CORS_ENABLED']):
 
 # Flask-Marshmallow provides HATEOAS links
 ma = Marshmallow(app)
+
+# email service
+email_service = EmailService(app)
 
 # Single Signon
 sso = SSO(app=app)

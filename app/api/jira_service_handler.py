@@ -37,13 +37,33 @@ class JiraServiceHandler:
                 "requestFieldValues": {
                     "summary": summary,
                     "description": desc
-                        },
+                },
                 "requestParticipants": participants,
                 "raiseOnBehalfOf": reporter
             }
         )
         r = requests.post(
             ''.join([self._connect_host_url, 'servicedeskapi/request']),
+            headers=headers,
+            data=payload,
+            auth=self._auth
+        )
+        return r.text
+
+    def addTicketComment(self, ticket_id, comment):
+        headers = {
+            "Content-Type": "application/json",
+        }
+
+        payload = json.dumps(
+            {
+                "body": comment,
+                "public": "true"
+            }
+        )
+        r = requests.post(
+            ''.join([self._connect_host_url,
+                     'servicedeskapi/request/{issueIdOrKey}/comment'.replace('{issueIdOrKey}', ticket_id)]),
             headers=headers,
             data=payload,
             auth=self._auth

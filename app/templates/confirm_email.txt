@@ -1,0 +1,24 @@
+Submitted on: {{ current_date }}
+
+{{ content_dict["name"] }} ({{ content_dict["uid"] }}) with a designated affiliation with UVA
+has submitted an allocation request for the following:
+--------------------------------------------------
+Email: {{ content_dict["email"] }}
+Department: {{ content_dict["department"] }}
+Mygroup Users: {{ content_dict["mygroup-users"] }}
+Mygroups Group: {{ content_dict["mygroups-group"] }}
+
+
+The project information is as follows:
+--------------------------------------
+For Research: {{ content_dict["for-research"] }}
+Description Of Research: {{ content_dict["description-of-research"] }}
+Details: {{ content_dict["details"] }}
+HPC Features: {{ content_dict["hpc-features"] }}
+SU Request: {{ content_dict["su-request"] }}
+Research Aims: {{ content_dict["research-aims"] }}
+
+Please place one of the following url in your browser to confirm your respomnse:
+Approve this request in full (600,000 SUs): {{ confirm_approve_url }}
+Reject this request: {{ confirm_disapprove_url }}
+Approve this request in part: {{ confirm_part_approve_url }}
