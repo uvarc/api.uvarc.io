@@ -78,7 +78,7 @@ def _send_allocation_approval_request(service_host,
         callback_host=service_host,
         content_dict=content
     )
-    return app.config['ALLOCATION_SPONSOR_EMAIL_LOOKUP']['sponsor']
+    return app.config['ALLOCATION_SPONSOR_EMAIL_LOOKUP'][content['sponsor']]
 
 
 @app.route('/rest/general-support-request/', methods=['POST'])
