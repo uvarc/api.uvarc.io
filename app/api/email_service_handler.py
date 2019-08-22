@@ -23,7 +23,7 @@ class EmailService():
 
     def email_server(self):
         server = smtplib.SMTP(host=self.app.config['MAIL_SERVER'],
-                              port=self.app.config['MAIL_PORT'],
+                              port='25',
                               timeout=self.app.config['MAIL_TIMEOUT'])
         server.ehlo()
         if self.app.config['MAIL_USE_TLS']:
@@ -68,7 +68,7 @@ class EmailService():
             return
 
         server = self.email_server()
-        server.sendmail(sender, recipients, msgRoot.as_bytes())
+        server.sendmail(sender, recipients, msgRoot.as_string())
         server.quit()
 
     def send_hpc_allocation_confirm_email(self,
