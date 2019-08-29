@@ -19,23 +19,31 @@ def unauthorized():
 
 def _process_support_request(form_elements_dict, service_host):
     jira_service_handler = JiraServiceHandler(app)
+    category = form_elements_dict['category']
+    if ('categories' in form_elements_dict):
+        category = form_elements_dict['categories']
+
     project_ticket_route =\
         app.config['JIRA_CATEGORY_PROJECT_ROUTE_DICT'][
-            form_elements_dict['category'].strip().title()]
+            category.strip().title()]
     submitted_attribs = list(form_elements_dict)
     desc_str = ''
     desc_html_str = ''
     format_attribs_order = ['name', 'email', 'uid',
                             'department', 'category', 'description']
     for attrib in format_attribs_order:
-        if(attrib in submitted_attribs):
+        if (attrib in submitted_attribs):
+            if(attrib == 'category'):
+                value = category
+            else:
+                value = form_elements_dict[attrib]
             desc_str = ''.join([desc_str, '{}: {}\n'.format(
-                str(attrib).strip().title(), form_elements_dict[attrib])])
+                str(attrib).strip().title(), value)])
             desc_html_str = ''.join([desc_html_str, '{}: {} \n\r'.format(
-                str(attrib).strip().title(), form_elements_dict[attrib])])
+                str(attrib).strip().title(), value)])
             submitted_attribs.remove(attrib)
 
-    drop_attribs = ['op']
+    drop_attribs = ['op', 'categories']
     submitted_attribs = list(set(submitted_attribs) - set(drop_attribs))
 
     for attrib in sorted(submitted_attribs):
@@ -43,7 +51,7 @@ def _process_support_request(form_elements_dict, service_host):
             str(attrib).strip().title(), form_elements_dict[attrib])])
         desc_html_str = ''.join([desc_html_str, '{}: {} \n\r'.format(
             str(attrib).strip().title(), form_elements_dict[attrib])])
-    summary_str = '{} Request'.format(form_elements_dict['category'])
+    summary_str = '{} Request'.format(category)
 
     ticket_response = jira_service_handler.createNewTicket(
         reporter=form_elements_dict['uid'],
@@ -53,7 +61,7 @@ def _process_support_request(form_elements_dict, service_host):
         desc=desc_str
     )
     # ticket_response = '{"issueKey":"RIV-1082"}'
-    if (form_elements_dict['category'] == 'Deans Allocation'):
+    if (category == 'Deans Allocation'):
         to_email_address = _send_allocation_approval_request(
             service_host=service_host,
             ticket_id=json.loads(ticket_response)['issueKey'],
