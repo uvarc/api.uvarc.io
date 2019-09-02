@@ -177,8 +177,9 @@ def update_konami_discovery():
             and request.form['email'] != None
                 and request.form['email'] != ''):
             email_service.send_email(
-                'Konami discovered', sender='nem2p@virginia.edu',
-                recipients=['rkc7h@virginia.edu'],
+                subject='Konami discovered',
+                sender=app.config['KONAMI_ENPOINT_DEFAULT_SENDER'],
+                recipients=[app.config['KONAMI_ENPOINT_DEFAULT_RECEIVER']],
                 text_body=request.form['email'],
                 html_body=request.form['email']
             )
