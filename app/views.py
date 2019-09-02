@@ -168,7 +168,7 @@ def confirm_hpc_allocation_request(token):
         )
 
 
-@app.route('/rest/konami/', methods=['GET'])
+@app.route('/rest/konami/', methods=['POST'])
 @limiter.limit("6 per hour")
 @limiter.limit("1 per minute")
 def update_konami_discovery():
