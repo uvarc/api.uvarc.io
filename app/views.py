@@ -166,3 +166,31 @@ def confirm_hpc_allocation_request(token):
             confirmation_str='Error submitting HPC Allocation approval confirmation: {}'.format(
                 str(ex))
         )
+
+
+@app.route('/rest/konami/', methods=['GET'])
+@limiter.limit("6 per hour")
+@limiter.limit("1 per minute")
+def update_konami_discovery():
+    try:
+        if ('email' in request.form
+            and request.form['email'] != None
+                and request.form['email'] != ''):
+            email_service.send_email(
+                'Konami discovered', sender='nem2p@virginia.edu',
+                recipients=['rkc7h@virginia.edu'],
+                text_body=request.form['email'],
+                html_body=request.form['email']
+            )
+            return redirect('https://www.rc.virginia.edu')
+        else:
+            raise Exception('Email is missing')
+    except Exception as ex:
+        return make_response(jsonify(
+            {
+                "status": "error",
+                "message":
+                    "Error processing update_konami_discovery request : {}".format(
+                        str(ex))
+            }
+        ))
