@@ -35,9 +35,9 @@ class JiraServiceHandler:
                     self._project_request_type_lookup_dict[request_type.upper(
                     )],
                 "requestFieldValues": {
-                    "summary": summary,
-                    "description": desc
-                },
+                        "summary": summary,
+                        "description": desc
+                    },
                 "requestParticipants": participants,
                 "raiseOnBehalfOf": reporter
             }
