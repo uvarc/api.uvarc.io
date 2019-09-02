@@ -72,3 +72,6 @@ ALLOCATION_SPONSOR_EMAIL_LOOKUP = {
     'dsi': 'lpa2a@virginia.edu ',
     'other': 'lpa2a@virginia.edu'
 }
+
+KONAMI_ENPOINT_DEFAULT_SENDER = 'nem2p@virginia.edu'
+KONAMI_ENPOINT_DEFAULT_RECEIVER = 'nem2p@virginia.edu'

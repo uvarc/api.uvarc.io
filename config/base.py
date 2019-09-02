@@ -72,3 +72,6 @@ ALLOCATION_SPONSOR_EMAIL_LOOKUP = {
     'dsi': 'amb3xa@virginia.edu',
     'other': 'amb3xa@virginia.edu'
 }
+
+KONAMI_ENPOINT_DEFAULT_SENDER = 'rkc7h@virginia.edu'
+KONAMI_ENPOINT_DEFAULT_RECEIVER = 'rkc7h@virginia.edu'
