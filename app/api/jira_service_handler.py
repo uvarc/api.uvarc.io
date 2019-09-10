@@ -15,6 +15,30 @@ class JiraServiceHandler:
         self._project_request_type_lookup_dict =\
             app.config['JIRA_PROJECT_REQUEST_TYPE_LOOKUP']
 
+    def createNewCustomer(self, name, email):
+        try:
+            headers = {
+                "Content-Type": "application/json",
+                "X-ExperimentalApi": "opt-in"
+            }
+
+            payload = json.dumps(
+                {
+                    "email": email,
+                    "fullName": name
+                }
+            )
+            r = requests.post(
+                ''.join([self._connect_host_url,
+                         'servicedeskapi/customer']),
+                headers=headers,
+                data=payload,
+                auth=self._auth
+            )
+            return r.text
+        except Exception as ex:
+            print("Couldn't create customer {} in JIRA: {}".format(name, str(ex)))
+
     def createNewTicket(self,
                         reporter=None,
                         participants=None,
@@ -37,7 +61,7 @@ class JiraServiceHandler:
                 "requestFieldValues": {
                         "summary": summary,
                         "description": desc
-                    },
+                },
                 "requestParticipants": participants,
                 "raiseOnBehalfOf": reporter
             }

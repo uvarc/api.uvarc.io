@@ -29,6 +29,9 @@ def _process_support_request(form_elements_dict, service_host):
     submitted_attribs = list(form_elements_dict)
     desc_str = ''
     desc_html_str = ''
+    name = None
+    email = None
+    username = None
     format_attribs_order = ['name', 'email', 'uid',
                             'department', 'category', 'description']
     for attrib in format_attribs_order:
@@ -37,6 +40,13 @@ def _process_support_request(form_elements_dict, service_host):
                 value = category
             else:
                 value = form_elements_dict[attrib]
+                if(attrib == 'name'):
+                    name = value
+                if(attrib == 'email'):
+                    email = value
+                if(attrib == 'uid'):
+                    username = value
+
             desc_str = ''.join([desc_str, '{}: {}\n'.format(
                 str(attrib).strip().title(), value)])
             desc_html_str = ''.join([desc_html_str, '{}: {} \n\r'.format(
@@ -45,7 +55,6 @@ def _process_support_request(form_elements_dict, service_host):
 
     drop_attribs = ['op', 'categories']
     submitted_attribs = list(set(submitted_attribs) - set(drop_attribs))
-
     for attrib in sorted(submitted_attribs):
         desc_str = ''.join([desc_str, '{}: {}\n'.format(
             str(attrib).strip().title(), form_elements_dict[attrib])])
@@ -53,8 +62,15 @@ def _process_support_request(form_elements_dict, service_host):
             str(attrib).strip().title(), form_elements_dict[attrib])])
     summary_str = '{} Request'.format(category)
 
+    if(username is None or username == ''):
+        username = email
+    if (name is not None and name != '' and username is not None and username != ''):
+        jira_user_response = jira_service_handler.createNewCustomer(
+            name=name,
+            email=username
+        )
     ticket_response = jira_service_handler.createNewTicket(
-        reporter=form_elements_dict['uid'],
+        reporter=username,
         project_name=project_ticket_route[0],
         request_type=project_ticket_route[1],
         summary=summary_str,
