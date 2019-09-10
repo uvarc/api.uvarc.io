@@ -62,15 +62,13 @@ def _process_support_request(form_elements_dict, service_host):
             str(attrib).strip().title(), form_elements_dict[attrib])])
     summary_str = '{} Request'.format(category)
 
-    if(username is None or username == ''):
-        username = email
-    if (name is not None and name != '' and username is not None and username != ''):
+    if (name is not None and name != '' and email is not None and email != ''):
         jira_user_response = jira_service_handler.createNewCustomer(
             name=name,
-            email=username
+            email=email
         )
     ticket_response = jira_service_handler.createNewTicket(
-        reporter=username,
+        reporter=email,
         project_name=project_ticket_route[0],
         request_type=project_ticket_route[1],
         summary=summary_str,
