@@ -1,4 +1,4 @@
-Support request ({{ ticket_id }}) Submitted on: {{ current_date }}
+Support Request ({{ ticket_id }}) Submitted on: {{ current_date }}
 
 Thank you for your purchase {{ content_dict["name"] }} ({{
 content_dict["uid"]
