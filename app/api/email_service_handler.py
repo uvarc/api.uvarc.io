@@ -44,6 +44,7 @@ class EmailService():
         msgRoot['From'] = sender
         msgRoot['To'] = ', '.join(recipients)
         if (cc_recipinents is not None):
+            recipients = recipients + cc_recipinents
             msgRoot['Cc'] = ', '.join(cc_recipinents)
         msgRoot.preamble = 'This is a multi-part message in MIME format.'
 
