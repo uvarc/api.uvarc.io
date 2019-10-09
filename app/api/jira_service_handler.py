@@ -61,7 +61,7 @@ class JiraServiceHandler:
                 "requestFieldValues": {
                         "summary": summary,
                         "description": desc
-                },
+                    },
                 "requestParticipants": participants,
                 "raiseOnBehalfOf": reporter
             }

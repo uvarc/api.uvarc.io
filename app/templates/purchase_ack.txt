@@ -1,0 +1,6 @@
+Support request ({{ ticket_id }}) Submitted on: {{ current_date }}
+
+Thank you for your purchase {{ content_dict["name"] }} ({{
+content_dict["uid"]
+}})! PTAOs are processed within 30 days of the order submission date. E-mail
+the RC billing office at hpc-support@virginia.edu if you have any questions.

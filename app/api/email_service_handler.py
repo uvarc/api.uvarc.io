@@ -33,7 +33,7 @@ class EmailService():
                          self.app.config['MAIL_PASSWORD'])
         return server
 
-    def send_email(self, subject, recipients, text_body, html_body, sender=None, ical=None):
+    def send_email(self, subject, recipients, text_body, html_body, sender=None, ical=None, cc_recipinents=None):
         msgRoot = MIMEMultipart('related')
         msgRoot.set_charset('utf8')
 
@@ -43,6 +43,8 @@ class EmailService():
         msgRoot['Subject'] = Header(subject.encode('utf-8'), 'utf-8').encode()
         msgRoot['From'] = sender
         msgRoot['To'] = ', '.join(recipients)
+        if (cc_recipinents is not None):
+            msgRoot['Cc'] = ', '.join(cc_recipinents)
         msgRoot.preamble = 'This is a multi-part message in MIME format.'
 
         msgAlternative = MIMEMultipart('alternative')
@@ -134,6 +136,42 @@ class EmailService():
 
         self.send_email(subject, sender=from_email_address,
                         recipients=[to_email_address],
+                        text_body=text_body,
+                        html_body=html_body)
+
+        return tracking_code
+
+    def send_purchase_ack_email(self,
+                                from_email_address,
+                                to_email_address,
+                                cc_email_addresses,
+                                subject, ticket_id,
+                                content_dict):
+        tracking_code = self.tracking_code()
+
+        current_date = datetime.now().strftime(
+            "%A, %B %d, %Y - %H:%M")
+
+        html_body = render_template(
+            "purchase_ack.html",
+            logo_url=RC_SMALL_LOGO_URL,
+            current_date=current_date,
+            ticket_id=ticket_id,
+            tracking_code=tracking_code,
+            content_dict=content_dict
+        )
+
+        text_body = render_template(
+            "purchase_ack.txt",
+            current_date=current_date,
+            ticket_id=ticket_id,
+            tracking_code=tracking_code,
+            content_dict=content_dict
+        )
+
+        self.send_email(subject, sender=from_email_address,
+                        recipients=[to_email_address],
+                        cc_recipinents=cc_email_addresses,
                         text_body=text_body,
                         html_body=html_body)
 

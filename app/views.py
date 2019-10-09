@@ -23,6 +23,10 @@ def _process_support_request(form_elements_dict, service_host):
     if ('categories' in form_elements_dict):
         category = form_elements_dict['categories']
 
+    request_title = form_elements_dict.get('request_title')
+    if('request-title' in form_elements_dict):
+        request_title = form_elements_dict['request-title']
+
     project_ticket_route =\
         app.config['JIRA_CATEGORY_PROJECT_ROUTE_DICT'][
             category.strip().title()]
@@ -53,17 +57,20 @@ def _process_support_request(form_elements_dict, service_host):
                 str(attrib).strip().title(), value)])
             submitted_attribs.remove(attrib)
 
-    drop_attribs = ['op', 'categories']
+    drop_attribs = ['op', 'categories', 'request_title', 'request-title']
     submitted_attribs = list(set(submitted_attribs) - set(drop_attribs))
     for attrib in sorted(submitted_attribs):
         desc_str = ''.join([desc_str, '{}: {}\n'.format(
             str(attrib).strip().title(), form_elements_dict[attrib])])
         desc_html_str = ''.join([desc_html_str, '{}: {} \n\r'.format(
             str(attrib).strip().title(), form_elements_dict[attrib])])
-    summary_str = '{} Request'.format(category)
+    if request_title is not None:
+        summary_str = request_title
+    else:
+        summary_str = '{} Request'.format(category)
 
     if (name is not None and name != '' and email is not None and email != ''):
-        jira_user_response = jira_service_handler.createNewCustomer(
+        jira_service_handler.createNewCustomer(
             name=name,
             email=email
         )
@@ -76,31 +83,39 @@ def _process_support_request(form_elements_dict, service_host):
     )
     # ticket_response = '{"issueKey":"RIV-1082"}'
     if (category == 'Deans Allocation'):
-        to_email_address = _send_allocation_approval_request(
-            service_host=service_host,
+        email_service.send_hpc_allocation_confirm_email(
+            from_email_address=form_elements_dict['email'],
+            to_email_address=app.config['ALLOCATION_SPONSOR_EMAIL_LOOKUP'][form_elements_dict['sponsor']],
+            subject=summary_str,
             ticket_id=json.loads(ticket_response)['issueKey'],
-            content=form_elements_dict
+            callback_host=service_host,
+            content_dict=form_elements_dict
         )
 
         jira_service_handler.addTicketComment(json.loads(
             ticket_response)['issueKey'], 'Approval request sent to the sponsor for confirmation')
 
+    cc_email_addresses_list = None
+    if ('financial-contact' in form_elements_dict
+        and form_elements_dict['financial-contact'] is not None
+            and form_elements_dict['financial-contact'] != ''):
+        cc_email_addresses_list = [form_elements_dict['financial-contact']]
+    if ((form_elements_dict.get('ptao1') is not None and form_elements_dict['ptao1'].lstrip() != '' and
+         form_elements_dict.get('ptao2') is not None and form_elements_dict['ptao2'].lstrip() != '' and
+         form_elements_dict.get('ptao3') is not None and form_elements_dict['ptao3'].lstrip() != '' and
+         form_elements_dict.get(
+             'ptao4') is not None and form_elements_dict['ptao4'].lstrip() != ''
+         ) or (form_elements_dict.get('ptao') is not None and form_elements_dict['ptao'].lstrip() != '')):
+        email_service.send_purchase_ack_email(
+            from_email_address='hpc-support@virginia.edu',
+            to_email_address=form_elements_dict['email'],
+            cc_email_addresses=cc_email_addresses_list,
+            subject=summary_str,
+            ticket_id=json.loads(ticket_response)['issueKey'],
+            content_dict=form_elements_dict
+        )
+
     return ticket_response
-
-
-def _send_allocation_approval_request(service_host,
-                                      ticket_id,
-                                      content):
-
-    tracking_code = email_service.send_hpc_allocation_confirm_email(
-        from_email_address=content['email'],
-        to_email_address=app.config['ALLOCATION_SPONSOR_EMAIL_LOOKUP'][content['sponsor']],
-        subject='Deans Allocation Request',
-        ticket_id=ticket_id,
-        callback_host=service_host,
-        content_dict=content
-    )
-    return app.config['ALLOCATION_SPONSOR_EMAIL_LOOKUP'][content['sponsor']]
 
 
 @app.route('/rest/general-support-request/', methods=['POST'])
@@ -161,7 +176,7 @@ def confirm_hpc_allocation_request(token):
                 response = json.loads(JiraServiceHandler(
                     app).addTicketComment(ticket_id, ''.join(['Confirmation received from sponsor: ', salt_str])))
                 if ('errorMessage' in response
-                    and response['errorMessage'] != None
+                    and response['errorMessage'] is not None
                         and response['errorMessage'] != ''):
                     raise Exception(response['errorMessage'])
                 return render_template(
@@ -188,7 +203,7 @@ def confirm_hpc_allocation_request(token):
 def update_konami_discovery():
     try:
         if ('email' in request.form
-            and request.form['email'] != None
+            and request.form['email'] is not None
                 and request.form['email'] != ''):
             email_service.send_email(
                 subject='Konami discovered',
