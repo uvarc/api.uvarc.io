@@ -163,9 +163,9 @@ def hpc_allocation_request():
                      'request: {}'.format(str(ex))]))
 
 
-@app.route('/rest/confirm-hpc-allocation-request/<token>/', methods=['GET'])
-@limiter.limit("6 per hour")
-@limiter.limit("1 per minute")
+@app.route('/rest/confirm-hpc-allocation-request/<token>/', methods=['GET', 'POST'])
+@limiter.limit("12 per hour")
+@limiter.limit("4 per minute")
 def confirm_hpc_allocation_request(token):
     try:
         for salt_str in ALLOC_APPROVE_CONFIRM_TYPES:
@@ -173,8 +173,22 @@ def confirm_hpc_allocation_request(token):
                 app.config["MAIL_SECRET_KEY"]
             ).loads_unsafe(token, salt=salt_str, max_age=1209600)
             if (sig_okay):
+                if(salt_str == ALLOC_APPROVE_CONFIRM_TYPES[2] and request.environ['REQUEST_METHOD'] == 'GET'):
+                    return render_template(
+                        'confirm_explanation.html',
+                        logo_url=RC_SMALL_LOGO_URL,
+                        confirmation_str='{} confirmation form'.format(
+                            salt_str),
+                        confirm_approve_url=request.base_url,
+                    )
+                comment_list = [
+                    'Confirmation received from sponsor: ', salt_str.upper()]
+                if(salt_str == ALLOC_APPROVE_CONFIRM_TYPES[2] and request.environ['REQUEST_METHOD'] == 'POST'):
+                    comment_list = comment_list + ['\n\nSUs approved by sponsor: ', request.form['su-request-approved-by-dean'],
+                                                   '\n\nExplanation: ', request.form['deans-explanation']]
+
                 response = json.loads(JiraServiceHandler(
-                    app).addTicketComment(ticket_id, ''.join(['Confirmation received from sponsor: ', salt_str])))
+                    app).addTicketComment(ticket_id, ''.join(comment_list)))
                 if ('errorMessage' in response
                     and response['errorMessage'] is not None
                         and response['errorMessage'] != ''):

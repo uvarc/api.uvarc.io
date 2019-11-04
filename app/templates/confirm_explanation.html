@@ -1,0 +1,67 @@
+{% extends "base_email.html" %} {% block content %}
+<p
+  style="font-family: sans-serif; font-size: 16px; font-weight: bold; margin: 0; Margin-bottom: 15px;"
+>
+  {{ confirmation_str }}
+</p>
+<form
+  action="{{ confirm_part_approve_url }}"
+  method="post"
+  id="allocation-form"
+  accept-charset="UTF-8"
+>
+  <table border="0" cellpadding="0" cellspacing="5">
+    <tbody>
+      <tr>
+        <td>
+          <div class="col form-item form-type-textfield form-group">
+            <label
+              >Total approved SUs
+              <span class="form-required" title="This field is required."
+                >*</span
+              ></label
+            >
+            <input
+              required="required"
+              type="number"
+              id="su-request-approved-by-dean"
+              name="su-request-approved-by-dean"
+              value=""
+              size="20"
+              maxlength="20"
+            />
+          </div>
+          <div class="spacer-20"></div>
+          <div class="form-item form-type-textarea form-group">
+            <p style="font-size:85%;font-color:#bbb;">
+              In the box below, please briefly explain why this allocation
+              request is only approved in part (optional).
+            </p>
+            <div class="form-textarea-wrapper resizable">
+              <textarea
+                required="required"
+                class="form-control form-textarea required"
+                id="deans-explanation"
+                name="deans-explanation"
+                cols="60"
+                rows="12"
+              ></textarea>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <button
+            style="align: center; display: inline-block; width: 180px; color: #0a0a0a; background-color: #f37209; border: solid 1px #42BD41; border-radius: 5px; box-sizing: border-box; cursor: pointer; text-decoration: none; font-size: 10px; font-weight: bold; margin: 0; padding: 10px 20px; text-transform: capitalize; border-color: #FCE903;"
+            id="submit"
+            type="submit"
+          >
+            Submit Confirmation
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</form>
+{% endblock %}
