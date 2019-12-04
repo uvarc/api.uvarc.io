@@ -4,16 +4,29 @@ import requests
 
 
 class JiraServiceHandler:
-    def __init__(self, app):
-        self._auth = (app.config['JIRA_CONN_INFO']['CLIENT_ID'],
-                      app.config['JIRA_CONN_INFO']['PASSWORD'])
-        self._connect_host_url = 'https://{}:{}/rest/'.\
-            format(app.config['JIRA_CONN_INFO']['HOST'],
-                   app.config['JIRA_CONN_INFO']['PORT'])
+    def __init__(self, app, is_cloud=False):
+        self._connect_host_url, self._auth = self.__get_jira_host_info(
+            app, is_cloud)
         self._default_reporter = app.config['JIRA_CONN_INFO']['CLIENT_ID']
         self._project_info_lookup_dict = app.config['JIRA_PROJECT_INFO_LOOKUP']
         self._project_request_type_lookup_dict =\
             app.config['JIRA_PROJECT_REQUEST_TYPE_LOOKUP']
+
+    def __get_jira_host_info(self, app, is_cloud):
+        if is_cloud:
+            return [
+                'https://{}:{}/rest/'.format(app.config['JIRA_CLOUD_CONN_INFO']['HOST'],
+                                             app.config['JIRA_CLOUD_CONN_INFO']['PORT']),
+                (app.config['JIRA_CLOUD_CONN_INFO']['CLIENT_ID'],
+                 app.config['JIRA_CLOUD_CONN_INFO']['PASSWORD'])
+            ]
+        else:
+            return [
+                'https://{}:{}/rest/'.format(app.config['JIRA_CONN_INFO']['HOST'],
+                                             app.config['JIRA_CONN_INFO']['PORT']),
+                (app.config['JIRA_CONN_INFO']['CLIENT_ID'],
+                 app.config['JIRA_CONN_INFO']['PASSWORD'])
+            ]
 
     def createNewCustomer(self, name, email):
         try:
@@ -21,7 +34,6 @@ class JiraServiceHandler:
                 "Content-Type": "application/json",
                 "X-ExperimentalApi": "opt-in"
             }
-
             payload = json.dumps(
                 {
                     "email": email,
@@ -29,8 +41,7 @@ class JiraServiceHandler:
                 }
             )
             r = requests.post(
-                ''.join([self._connect_host_url,
-                         'servicedeskapi/customer']),
+                ''.join([self._connect_host_url, 'servicedeskapi/customer']),
                 headers=headers,
                 data=payload,
                 auth=self._auth
@@ -48,8 +59,8 @@ class JiraServiceHandler:
                         desc=None):
         if(reporter is None):
             reporter = self._default_reporter
-        if(participants is None):
-            participants = [reporter]
+        # if(participants is None):
+        #     participants = [reporter]
         headers = {'content-type': 'application/json'}
         payload = json.dumps(
             {
@@ -61,7 +72,7 @@ class JiraServiceHandler:
                 "requestFieldValues": {
                         "summary": summary,
                         "description": desc
-                    },
+                },
                 "requestParticipants": participants,
                 "raiseOnBehalfOf": reporter
             }

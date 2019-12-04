@@ -1,7 +1,7 @@
 import json
 
 NAME = 'UVARC Service'
-VERSION = '0.1'
+VERSION = '0.2'
 
 
 def fetch_connections_info(): return json.load(
@@ -22,6 +22,12 @@ JIRA_CONN_INFO = {
     'PORT': conn_info['JIRA']['PORT'],
     'CLIENT_ID': conn_info['JIRA']['CLIENT_ID'],
     'PASSWORD': conn_info['JIRA']['CLIENT_SECRET']
+}
+JIRA_CLOUD_CONN_INFO = {
+    'HOST': conn_info['JIRA_CLOUD']['HOSTS'][0],
+    'PORT': conn_info['JIRA_CLOUD']['PORT'],
+    'CLIENT_ID': conn_info['JIRA_CLOUD']['CLIENT_ID'],
+    'PASSWORD': conn_info['JIRA_CLOUD']['CLIENT_SECRET']
 }
 
 JIRA_PROJECTS = ('RIVANNA', 'IVY', 'GENERAL_SUPPORT')

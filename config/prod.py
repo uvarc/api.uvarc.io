@@ -23,6 +23,12 @@ JIRA_CONN_INFO = {
     'CLIENT_ID': conn_info['JIRA']['CLIENT_ID'],
     'PASSWORD': conn_info['JIRA']['CLIENT_SECRET']
 }
+JIRA_CLOUD_CONN_INFO = {
+    'HOST': conn_info['JIRA_CLOUD']['HOSTS'][0],
+    'PORT': conn_info['JIRA_CLOUD']['PORT'],
+    'CLIENT_ID': conn_info['JIRA_CLOUD']['CLIENT_ID'],
+    'PASSWORD': conn_info['JIRA_CLOUD']['CLIENT_SECRET']
+}
 
 JIRA_PROJECTS = ('RIVANNA', 'IVY', 'GENERAL_SUPPORT')
 JIRA_PROJECT_REQUEST_TYPES = (

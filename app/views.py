@@ -17,8 +17,8 @@ def unauthorized():
     ), 401)
 
 
-def _process_support_request(form_elements_dict, service_host):
-    jira_service_handler = JiraServiceHandler(app)
+def _process_support_request(form_elements_dict, service_host, version):
+    jira_service_handler = JiraServiceHandler(app, version != "v1")
     category = form_elements_dict['category']
     if ('categories' in form_elements_dict):
         category = form_elements_dict['categories']
@@ -30,6 +30,7 @@ def _process_support_request(form_elements_dict, service_host):
     project_ticket_route =\
         app.config['JIRA_CATEGORY_PROJECT_ROUTE_DICT'][
             category.strip().title()]
+
     submitted_attribs = list(form_elements_dict)
     desc_str = ''
     desc_html_str = ''
@@ -72,7 +73,7 @@ def _process_support_request(form_elements_dict, service_host):
     if (name is not None and name != '' and email is not None and email != ''):
         jira_service_handler.createNewCustomer(
             name=name,
-            email=email
+            email=email,
         )
     ticket_response = jira_service_handler.createNewTicket(
         reporter=email,
@@ -118,15 +119,16 @@ def _process_support_request(form_elements_dict, service_host):
     return ticket_response
 
 
+@app.route('/rest/<version>/general-support-request/', methods=['POST'])
 @app.route('/rest/general-support-request/', methods=['POST'])
 @limiter.limit("6 per hour")
 @limiter.limit("2 per minute")
-def general_support_request():
+def general_support_request(version='v2'):
     try:
         f = furl.furl(request.referrer)
         f.remove(['ticket_id', 'message', 'status'])
         response = json.loads(_process_support_request(
-            request.form, request.host_url))
+            request.form, request.host_url, version))
         return redirect(
             ''.join([f.url, '&status=', '200 OK', '&', 'message=',
                      'Support request ({}) successfully '
@@ -139,10 +141,11 @@ def general_support_request():
                      'request: {}'.format(str(ex))]))
 
 
+@app.route('/rest/<version>/hpc-allocation-request/', methods=['POST'])
 @app.route('/rest/hpc-allocation-request/', methods=['POST'])
 @limiter.limit("6 per hour")
 @limiter.limit("1 per minute")
-def hpc_allocation_request():
+def hpc_allocation_request(version='v2'):
     try:
         f = furl.furl(request.referrer)
         f.remove(['ticket_id', 'message', 'status'])
@@ -150,7 +153,7 @@ def hpc_allocation_request():
         request_form['category'] = "Rivanna HPC"
 
         response = json.loads(_process_support_request(
-            request_form, request.host_url))
+            request_form, request.host_url, version))
 
         return redirect(
             ''.join([f.url, '&status=', '200 OK', '&', 'message=',
@@ -163,10 +166,11 @@ def hpc_allocation_request():
                      'request: {}'.format(str(ex))]))
 
 
+@app.route('/rest/<version>/confirm-hpc-allocation-request/<token>/', methods=['GET', 'POST'])
 @app.route('/rest/confirm-hpc-allocation-request/<token>/', methods=['GET', 'POST'])
 @limiter.limit("12 per hour")
 @limiter.limit("4 per minute")
-def confirm_hpc_allocation_request(token):
+def confirm_hpc_allocation_request(token, version='v2'):
     try:
         for salt_str in ALLOC_APPROVE_CONFIRM_TYPES:
             sig_okay, ticket_id = URLSafeTimedSerializer(
@@ -188,7 +192,7 @@ def confirm_hpc_allocation_request(token):
                                                    '\n\nExplanation: ', request.form['deans-explanation']]
 
                 response = json.loads(JiraServiceHandler(
-                    app).addTicketComment(ticket_id, ''.join(comment_list)))
+                    app, version != "v1").addTicketComment(ticket_id, ''.join(comment_list)))
                 if ('errorMessage' in response
                     and response['errorMessage'] is not None
                         and response['errorMessage'] != ''):

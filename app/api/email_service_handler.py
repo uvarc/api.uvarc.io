@@ -86,7 +86,7 @@ class EmailService():
             [
                 callback_host,
                 url_for(
-                    "confirm_hpc_allocation_request",
+                    "confirm_hpc_allocation_request", version="v2",
                     token=URLSafeTimedSerializer(self.app.config['MAIL_SECRET_KEY']).dumps(
                         ticket_id, salt=ALLOC_APPROVE_CONFIRM_TYPES[0]))
             ]
@@ -95,7 +95,7 @@ class EmailService():
             [
                 callback_host,
                 url_for(
-                    "confirm_hpc_allocation_request",
+                    "confirm_hpc_allocation_request", version="v2",
                     token=URLSafeTimedSerializer(self.app.config['MAIL_SECRET_KEY']).dumps(
                         ticket_id, salt=ALLOC_APPROVE_CONFIRM_TYPES[1]))
             ]
@@ -104,7 +104,7 @@ class EmailService():
             [
                 callback_host,
                 url_for(
-                    "confirm_hpc_allocation_request",
+                    "confirm_hpc_allocation_request", version="v2",
                     token=URLSafeTimedSerializer(self.app.config['MAIL_SECRET_KEY']).dumps(
                         ticket_id, salt=ALLOC_APPROVE_CONFIRM_TYPES[2]))
             ]
