@@ -46,7 +46,8 @@
       "request": "launch",
       "module": "flask",
       "env": {
-        "FLASK_APP": "app/__init__.py"
+        "FLASK_APP": "app/__init__.py",
+        "FLASK_RUN_PORT": "5001"
       },
       "args": ["run", "--no-debugger", "--no-reload"],
       "jinja": true

@@ -129,16 +129,37 @@ def general_support_request(version='v2'):
         f.remove(['ticket_id', 'message', 'status'])
         response = json.loads(_process_support_request(
             request.form, request.host_url, version))
-        return redirect(
-            ''.join([f.url, '&status=', '200 OK', '&', 'message=',
-                     'Support request ({}) successfully '
-                     'created'.format(response['issueKey'])]))
+        if ('REQUEST_CLIENT' in request.form
+                and request.form['REQUEST_CLIENT'] == 'ITHRIV'):
+            return make_response(jsonify(
+                {
+                    'status': '200 OK',
+                    'ticket_id': response['issueKey'],
+                    'message': 'General support request successfully submitted'
+                }
+            ), 200)
+        else:
+            return redirect(
+                ''.join([f.url, '&status=', '200 OK', '&', 'message=',
+                         'Support request ({}) successfully '
+                         'created'.format(response['issueKey'])]))
     except Exception as ex:
         print(ex)
-        return redirect(
-            ''.join([f.url, '&status=', 'error', '&', 'message=',
-                     'Error submitting support '
-                     'request: {}'.format(str(ex))]))
+        if ('REQUEST_CLIENT' in request.form
+                and request.form['REQUEST_CLIENT'] == 'ITHRIV'):
+            return make_response(jsonify(
+                {
+                    "status": "error",
+                    "message":
+                    "Error submitting general support request : {}".format(
+                        str(ex))
+                }
+            ), 501)
+        else:
+            return redirect(
+                ''.join([f.url, '&status=', 'error', '&', 'message=',
+                         'Error submitting support '
+                         'request: {}'.format(str(ex))]))
 
 
 @app.route('/rest/<version>/hpc-allocation-request/', methods=['POST'])
