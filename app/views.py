@@ -205,12 +205,30 @@ def confirm_hpc_allocation_request(token, version='v2'):
                         confirmation_str='{} confirmation form'.format(
                             salt_str),
                         confirm_approve_url=request.base_url,
+                        show_condition="visibility: show;",
+                        confirm_str=salt_str,
+                        default_sus='',
+                    )
+                if(salt_str == ALLOC_APPROVE_CONFIRM_TYPES[1] and request.environ['REQUEST_METHOD'] == 'GET'):
+                    return render_template(
+                        'confirm_explanation.html',
+                        logo_url=RC_SMALL_LOGO_URL,
+                        confirmation_str='{} confirmation form'.format(
+                            salt_str),
+                        confirm_approve_url=request.base_url,
+                        show_condition="visibility: hidden;",
+                        confirm_str=salt_str,
+                        default_sus=0,
                     )
                 comment_list = [
                     'Confirmation received from sponsor: ', salt_str.upper()]
-                if(salt_str == ALLOC_APPROVE_CONFIRM_TYPES[2] and request.environ['REQUEST_METHOD'] == 'POST'):
-                    comment_list = comment_list + ['\n\nSUs approved by sponsor: ', request.form['su-request-approved-by-dean'],
-                                                   '\n\nExplanation: ', request.form['deans-explanation']]
+                if request.environ['REQUEST_METHOD'] == 'POST':
+                    if salt_str == ALLOC_APPROVE_CONFIRM_TYPES[2]:
+                        comment_list = comment_list + ['\n\nSUs approved by sponsor: ', request.form['su-request-approved-by-dean'],
+                                                       '\n\nExplanation: ', request.form['deans-explanation']]
+                    elif salt_str == ALLOC_APPROVE_CONFIRM_TYPES[1]:
+                        comment_list = comment_list + \
+                            ['\n\nExplanation: ', request.form['deans-explanation']]
 
                 response = json.loads(JiraServiceHandler(
                     app, version != "v1").addTicketComment(ticket_id, ''.join(comment_list)))

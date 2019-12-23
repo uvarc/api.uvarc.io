@@ -93,7 +93,7 @@ class JiraServiceHandler:
         payload = json.dumps(
             {
                 "body": comment,
-                "public": "true"
+                "public": False
             }
         )
         r = requests.post(

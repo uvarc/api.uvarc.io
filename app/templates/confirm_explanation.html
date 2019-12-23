@@ -5,7 +5,7 @@
   {{ confirmation_str }}
 </p>
 <form
-  action="{{ confirm_part_approve_url }}"
+  action="{{ confirm_approve_url }}"
   method="post"
   id="allocation-form"
   accept-charset="UTF-8"
@@ -14,7 +14,10 @@
     <tbody>
       <tr>
         <td>
-          <div class="col form-item form-type-textfield form-group">
+          <div
+            style="{{ show_condition }}"
+            class="col form-item form-type-textfield form-group"
+          >
             <label
               >Total approved SUs
               <span class="form-required" title="This field is required."
@@ -26,7 +29,7 @@
               type="number"
               id="su-request-approved-by-dean"
               name="su-request-approved-by-dean"
-              value=""
+              value="{{ default_sus }}"
               size="20"
               maxlength="20"
             />
@@ -35,7 +38,7 @@
           <div class="form-item form-type-textarea form-group">
             <p style="font-size:85%;font-color:#bbb;">
               In the box below, please briefly explain why this allocation
-              request is only approved in part (optional).
+              request is {{ confirm_str }} (optional).
             </p>
             <div class="form-textarea-wrapper resizable">
               <textarea
