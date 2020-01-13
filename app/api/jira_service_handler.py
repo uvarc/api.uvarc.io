@@ -28,6 +28,50 @@ class JiraServiceHandler:
                  app.config['JIRA_CONN_INFO']['PASSWORD'])
             ]
 
+    def __get_jira_ticket_route_ids(self, project_name, request_type):
+        try:
+            if(project_name.upper() in self._project_info_lookup_dict
+               and request_type.upper() in self._project_request_type_lookup_dict):
+                return (
+                    self._project_info_lookup_dict[project_name.upper(
+                    )],
+                    self._project_request_type_lookup_dict[request_type.upper(
+                    )]
+                )
+
+            headers = {
+                "Content-Type": "application/json"}
+            r = requests.get(
+                ''.join([self._connect_host_url,
+                         'servicedeskapi/servicedesk']),
+                headers=headers,
+                auth=self._auth
+            )
+            project_meta_info = json.loads((r.content).decode("utf-8"))
+
+            for i in range(0, project_meta_info['size']):
+                if(project_meta_info['values'][i]['projectName'].upper() == project_name.upper()):
+                    headers = {
+                        "Content-Type": "application/json"}
+                    r = requests.get(
+                        ''.join([self._connect_host_url,
+                                 'servicedeskapi/servicedesk/{}/requesttype'.format(project_meta_info['values'][i]['id'])]),
+                        headers=headers,
+                        auth=self._auth
+                    )
+                    request_typ_meta_info = json.loads(
+                        (r.content).decode("utf-8"))
+
+                    for ri in range(0, request_typ_meta_info['size']):
+                        if(request_typ_meta_info['values'][ri]['name'].upper() == request_type.upper()):
+                            return (project_meta_info['values'][i]['id'], request_typ_meta_info['values'][ri]['id'])
+
+            raise Exception(
+                'Cannot find JIRA route to create ticket for project/request type {}/{}'.format(project_name, request_type))
+        except Exception as ex:
+            print(str(ex))
+            raise ex
+
     def createNewCustomer(self, name, email):
         try:
             headers = {
@@ -55,6 +99,7 @@ class JiraServiceHandler:
                         participants=None,
                         project_name='GENERAL_SUPPORT',
                         request_type='GENERAL_SUPPORT_GET_IT_HELP',
+                        components=None,
                         summary=None,
                         desc=None):
         if(reporter is None):
@@ -62,25 +107,29 @@ class JiraServiceHandler:
         # if(participants is None):
         #     participants = [reporter]
         headers = {'content-type': 'application/json'}
-        payload = json.dumps(
-            {
-                "serviceDeskId":
-                    self._project_info_lookup_dict[project_name.upper()],
-                "requestTypeId":
-                    self._project_request_type_lookup_dict[request_type.upper(
-                    )],
-                "requestFieldValues": {
-                        "summary": summary,
-                        "description": desc
-                },
-                "requestParticipants": participants,
-                "raiseOnBehalfOf": reporter
-            }
-        )
+        jira_ticket_route_info = self.__get_jira_ticket_route_ids(
+            project_name, request_type)
+        payload = {
+            "serviceDeskId": jira_ticket_route_info[0],
+            "requestTypeId": jira_ticket_route_info[1],
+            "requestFieldValues": {
+                "summary": summary,
+                "description": desc
+            },
+            "requestParticipants": participants,
+            "raiseOnBehalfOf": reporter
+        }
+
+        if components:
+            payload["requestFieldValues"]["components"] = []
+            for component in components.split(";"):
+                if component.lstrip() != '':
+                    payload["requestFieldValues"]["components"].append(
+                        {"name": component})
         r = requests.post(
             ''.join([self._connect_host_url, 'servicedeskapi/request']),
             headers=headers,
-            data=payload,
+            data=json.dumps(payload),
             auth=self._auth
         )
         return r.text
@@ -104,3 +153,45 @@ class JiraServiceHandler:
             auth=self._auth
         )
         return r.text
+
+    def get_all_tickets_by_customer(self, reporter):
+        try:
+            headers = {
+                "Content-Type": "application/json",
+                "X-ExperimentalApi": "opt-in"
+            }
+            r = requests.get(
+                ''.join([self._connect_host_url,
+                         "api/3/search?jql=reporter%20%3D%20\"{}\"+order+by+created"]).format(reporter),
+                headers=headers,
+                auth=self._auth
+            )
+            requests_info = json.loads((r.content).decode("utf-8"))
+            response_data = ()
+            for request in requests_info['issues']:
+                try:
+                    description = None
+                    if request['fields'].get('description'):
+                        for content in request['fields'].get('description')['content'][0]['content']:
+                            if content['type'] == 'text' and content['text'].startswith('Description: '):
+                                description = content['text']
+                except Exception as ex:
+                    pass
+
+                response_data = response_data + (
+                    {
+                        'reference_id': request['key'],
+                        'status': request['fields']['status']['name'],
+                        'project_name': request['fields']['project']['name'],
+                        'request_type': request['fields']['customfield_10001']['requestType']['name'],
+                        'summary': request['fields']['summary'],
+                        'create_date': request['fields']['created'],
+                        'description': description,
+                        'request_link': request['fields']['customfield_10001']['_links']['web']
+                    },
+                )
+
+            return response_data
+        except Exception as ex:
+            print("Couldn't fetch tickets for customer {} from JIRA: {}".format(
+                reporter, str(ex)))

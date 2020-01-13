@@ -24,12 +24,18 @@ def _process_support_request(form_elements_dict, service_host, version):
         category = form_elements_dict['categories']
 
     request_title = form_elements_dict.get('request_title')
+    components = None
     if('request-title' in form_elements_dict):
         request_title = form_elements_dict['request-title']
-
-    project_ticket_route =\
-        app.config['JIRA_CATEGORY_PROJECT_ROUTE_DICT'][
-            category.strip().title()]
+    if "JIRA_PROJECT_TICKET_ROUTE" in form_elements_dict:
+        project_ticket_route = tuple(form_elements_dict.get(
+            "JIRA_PROJECT_TICKET_ROUTE").split('|'))
+        if(len(project_ticket_route) > 2):
+            components = project_ticket_route[2]
+    else:
+        project_ticket_route =\
+            app.config['JIRA_CATEGORY_PROJECT_ROUTE_DICT'][
+                category.strip().title()]
 
     submitted_attribs = list(form_elements_dict)
     desc_str = ''
@@ -58,7 +64,11 @@ def _process_support_request(form_elements_dict, service_host, version):
                 str(attrib).strip().title(), value)])
             submitted_attribs.remove(attrib)
 
-    drop_attribs = ['op', 'categories', 'request_title', 'request-title']
+    drop_attribs = [
+        'op', 'categories', 'request_title',
+        'request-title', 'JIRA_PROJECT_TICKET_ROUTE',
+        'REQUEST_CLIENT'
+    ]
     submitted_attribs = list(set(submitted_attribs) - set(drop_attribs))
     for attrib in sorted(submitted_attribs):
         desc_str = ''.join([desc_str, '{}: {}\n'.format(
@@ -79,6 +89,7 @@ def _process_support_request(form_elements_dict, service_host, version):
         reporter=email,
         project_name=project_ticket_route[0],
         request_type=project_ticket_route[1],
+        components=components,
         summary=summary_str,
         desc=desc_str
     )
@@ -160,6 +171,25 @@ def general_support_request(version='v2'):
                 ''.join([f.url, '&status=', 'error', '&', 'message=',
                          'Error submitting support '
                          'request: {}'.format(str(ex))]))
+
+
+@app.route('/rest/<version>/get-all-customer-requests/', methods=['GET'])
+def get_all_customer_requests(version='v2'):
+    try:
+        return make_response(
+            jsonify(
+                JiraServiceHandler(app, version != "v1").get_all_tickets_by_customer(
+                    request.values.get('email'))))
+    except Exception as ex:
+        print(ex)
+        return make_response(jsonify(
+            {
+                "status": "error",
+                "message":
+                "Error fetching customer requests : {}".format(
+                    str(ex))
+            }
+        ), 501)
 
 
 @app.route('/rest/<version>/hpc-allocation-request/', methods=['POST'])
