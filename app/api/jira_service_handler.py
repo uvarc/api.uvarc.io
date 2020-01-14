@@ -187,7 +187,8 @@ class JiraServiceHandler:
                         'summary': request['fields']['summary'],
                         'create_date': request['fields']['created'],
                         'description': description,
-                        'request_link': request['fields']['customfield_10001']['_links']['web']
+                        'request_link': request['fields']['customfield_10001']['_links']['web'],
+                        'request_type_icon_link': request['fields']['customfield_10001']['requestType']['icon']['_links']['iconUrls']['24x24']
                     },
                 )
 
