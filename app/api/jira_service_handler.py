@@ -162,7 +162,7 @@ class JiraServiceHandler:
             }
             r = requests.get(
                 ''.join([self._connect_host_url,
-                         "api/3/search?jql=reporter%20%3D%20\"{}\"+order+by+created"]).format('jjl4d@virginia.edu'),
+                         "api/3/search?jql=reporter%20%3D%20\"{}\"+order+by+created"]).format(reporter),
                 headers=headers,
                 auth=self._auth
             )
