@@ -162,7 +162,7 @@ class JiraServiceHandler:
             }
             r = requests.get(
                 ''.join([self._connect_host_url,
-                         "api/3/search?jql=reporter%20%3D%20\"{}\"+order+by+created"]).format(reporter),
+                         "api/3/search?jql=reporter%20%3D%20\"{}\"+order+by+created"]).format('jjl4d@virginia.edu'),
                 headers=headers,
                 auth=self._auth
             )
@@ -178,17 +178,23 @@ class JiraServiceHandler:
                 except Exception as ex:
                     pass
 
+                request_type = None
+                request_type_icon_link = None
+                if 'requestType' in request['fields']['customfield_10001']:
+                    request_type = request['fields']['customfield_10001']['requestType']['name']
+                    request_type_icon_link = request['fields']['customfield_10001'][
+                        'requestType']['icon']['_links']['iconUrls']['24x24']
                 response_data = response_data + (
                     {
                         'reference_id': request['key'],
                         'status': request['fields']['status']['name'],
                         'project_name': request['fields']['project']['name'],
-                        'request_type': request['fields']['customfield_10001']['requestType']['name'],
+                        'request_type': request_type,
                         'summary': request['fields']['summary'],
                         'create_date': request['fields']['created'],
                         'description': description,
                         'request_link': request['fields']['customfield_10001']['_links']['web'],
-                        'request_type_icon_link': request['fields']['customfield_10001']['requestType']['icon']['_links']['iconUrls']['24x24']
+                        'request_type_icon_link': request_type_icon_link
                     },
                 )
 
