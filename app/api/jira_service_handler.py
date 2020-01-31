@@ -170,34 +170,43 @@ class JiraServiceHandler:
             response_data = ()
             for request in requests_info['issues']:
                 try:
-                    description = None
+                    description = ''
                     if request['fields'].get('description'):
                         for content in request['fields'].get('description')['content'][0]['content']:
                             if content['type'] == 'text' and content['text'].startswith('Description: '):
                                 description = content['text']
                 except Exception as ex:
                     pass
+                try:
+                    request_type = ''
+                    request_type_icon_link = ''
+                    request_link = ''
 
-                request_type = None
-                request_type_icon_link = None
-                if 'requestType' in request['fields']['customfield_10001']:
-                    request_type = request['fields']['customfield_10001']['requestType']['name']
-                    request_type_icon_link = request['fields']['customfield_10001'][
-                        'requestType']['icon']['_links']['iconUrls']['24x24']
-                response_data = response_data + (
-                    {
-                        'reference_id': request['key'],
-                        'status': request['fields']['status']['name'],
-                        'project_name': request['fields']['project']['name'],
-                        'request_type': request_type,
-                        'summary': request['fields']['summary'],
-                        'create_date': request['fields']['created'],
-                        'description': description,
-                        'request_link': request['fields']['customfield_10001']['_links']['web'],
-                        'request_type_icon_link': request_type_icon_link
-                    },
-                )
-
+                    if 'customfield_10001' in request['fields']:
+                        if 'requestType' in request['fields']['customfield_10001']:
+                            request_type = request['fields']['customfield_10001']['requestType']['name']
+                            request_type_icon_link = request['fields']['customfield_10001'][
+                                'requestType']['icon']['_links']['iconUrls']['24x24']
+                        if '_links' in request['fields']['customfield_10001']:
+                            request_link = request['fields']['customfield_10001']['_links']['web']
+                except Exception as ex:
+                    pass
+                try:
+                    response_data = response_data + (
+                        {
+                            'reference_id': request['key'],
+                            'status': request['fields']['status']['name'],
+                            'project_name': request['fields']['project']['name'],
+                            'request_type': request_type,
+                            'summary': request['fields']['summary'],
+                            'create_date': request['fields']['created'],
+                            'description': description,
+                            'request_link': request_link,
+                            'request_type_icon_link': request_type_icon_link
+                        },
+                    )
+                except Exception as ex:
+                    pass
             return response_data
         except Exception as ex:
             print("Couldn't fetch tickets for customer {} from JIRA: {}".format(
