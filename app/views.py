@@ -132,8 +132,8 @@ def _process_support_request(form_elements_dict, service_host, version):
 
 @app.route('/rest/<version>/general-support-request/', methods=['POST'])
 @app.route('/rest/general-support-request/', methods=['POST'])
-@limiter.limit("6 per hour")
-@limiter.limit("2 per minute")
+@limiter.limit("30 per hour")
+@limiter.limit("10 per minute")
 def general_support_request(version='v2'):
     try:
         f = furl.furl(request.referrer)
@@ -194,8 +194,8 @@ def get_all_customer_requests(version='v2'):
 
 @app.route('/rest/<version>/hpc-allocation-request/', methods=['POST'])
 @app.route('/rest/hpc-allocation-request/', methods=['POST'])
-@limiter.limit("6 per hour")
-@limiter.limit("1 per minute")
+@limiter.limit("30 per hour")
+@limiter.limit("10 per minute")
 def hpc_allocation_request(version='v2'):
     try:
         f = furl.furl(request.referrer)
