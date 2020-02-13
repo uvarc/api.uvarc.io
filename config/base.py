@@ -86,6 +86,7 @@ ALLOCATION_SPONSOR_EMAIL_LOOKUP = {
     'cas': 'rkc7h@virginia.edu',
     'seas': 'nem2p@virginia.edu',
     'dsi': 'amb3xa@virginia.edu',
+    'hs': 'jcm6t@virginia.edu',
     'other': 'amb3xa@virginia.edu'
 }
 
