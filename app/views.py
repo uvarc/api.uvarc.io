@@ -139,7 +139,8 @@ def general_support_request(version='v2'):
         f = furl.furl(request.referrer)
         f.remove(['ticket_id', 'message', 'status'])
         response = json.loads(_process_support_request(
-            request.form, request.host_url, version))
+            request.form, request.host_url if 'localhost' in request.host_url else request.host_url.replace(
+                'http', 'https'), version))
         if ('REQUEST_CLIENT' in request.form
                 and request.form['REQUEST_CLIENT'] == 'ITHRIV'):
             return make_response(jsonify(
@@ -204,7 +205,8 @@ def hpc_allocation_request(version='v2'):
         request_form['category'] = "Rivanna HPC"
 
         response = json.loads(_process_support_request(
-            request_form, request.host_url, version))
+            request_form, request.host_url if 'localhost' in request.host_url else request.host_url.replace(
+                'http', 'https'), version))
 
         return redirect(
             ''.join([f.url, '&status=', '200 OK', '&', 'message=',
@@ -234,7 +236,8 @@ def confirm_hpc_allocation_request(token, version='v2'):
                         logo_url=RC_SMALL_LOGO_URL,
                         confirmation_str='{} confirmation form'.format(
                             salt_str),
-                        confirm_approve_url=request.base_url,
+                        confirm_approve_url=request.base_url if 'localhost' in request.base_url else request.base_url.replace(
+                            'http', 'https'),
                         show_condition="visibility: show;",
                         confirm_str=salt_str,
                         default_sus='',
@@ -245,7 +248,8 @@ def confirm_hpc_allocation_request(token, version='v2'):
                         logo_url=RC_SMALL_LOGO_URL,
                         confirmation_str='{} confirmation form'.format(
                             salt_str),
-                        confirm_approve_url=request.base_url,
+                        confirm_approve_url=request.base_url if 'localhost' in request.base_url else request.base_url.replace(
+                            'http', 'https'),
                         show_condition="visibility: hidden;",
                         confirm_str=salt_str,
                         default_sus=0,
