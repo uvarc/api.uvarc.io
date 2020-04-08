@@ -1,13 +1,14 @@
-import json
-
-from flask import jsonify, make_response, request, redirect, render_template
-
-import furl
-from itsdangerous import URLSafeTimedSerializer
-
-from app import app, limiter, email_service
-from app.api import ALLOC_APPROVE_CONFIRM_TYPES, RC_SMALL_LOGO_URL
+# encoding=utf8
 from app.api.jira_service_handler import JiraServiceHandler
+from app.api import ALLOC_APPROVE_CONFIRM_TYPES, RC_SMALL_LOGO_URL
+from app import app, limiter, email_service
+from itsdangerous import URLSafeTimedSerializer
+import furl
+from flask import jsonify, make_response, request, redirect, render_template
+import json
+import sys
+reload(sys)
+sys.setdefaultencoding('utf8')
 
 
 def unauthorized():
