@@ -1,8 +1,9 @@
 # encoding=utf8
 from app.api.jira_service_handler import JiraServiceHandler
-from app.api import ALLOC_APPROVE_CONFIRM_TYPES, RC_SMALL_LOGO_URL
+from app.api import ALLOC_APPROVE_CONFIRM_TYPES, RC_SMALL_LOGO_URL, DecimalEncoder
 from app import app, limiter, email_service
 from itsdangerous import URLSafeTimedSerializer
+import boto3
 import furl
 from flask import jsonify, make_response, request, redirect, render_template
 import json
@@ -95,6 +96,23 @@ def _process_support_request(form_elements_dict, service_host, version):
         desc=desc_str
     )
     # ticket_response = '{"issueKey":"RIV-1082"}'
+    try:
+        dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
+        table = dynamodb.Table('jira-tracking')
+
+        response = table.put_item(
+            Item={
+                'key': json.loads(ticket_response)['issueKey'],
+                'submitted': json.loads(ticket_response)['createdDate']['jira'],
+                'uid': username,
+                'email': email,
+                'type': summary_str
+            }
+        )
+        print(json.dumps(response, indent=4, cls=DecimalEncoder))
+    except Exception as ex:
+        print(str(ex))
+
     if (category == 'Deans Allocation'):
         email_service.send_hpc_allocation_confirm_email(
             from_email_address=form_elements_dict['email'],
