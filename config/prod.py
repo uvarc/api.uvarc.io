@@ -85,7 +85,7 @@ MAIL_SECRET_KEY = conn_info["SMTP"]["SECURE_KEY"]
 
 ALLOCATION_SPONSOR_EMAIL_LOOKUP = {
     'cas': 'jh8h@virginia.edu',
-    'seas': 'sb5mc@virginia.edu',
+    'seas': 'pmn3d@virginia.edu',
     'dsi': 'lpa2a@virginia.edu ',
     'hs': 'jcm6t@virginia.edu',
     'other': 'lpa2a@virginia.edu'
