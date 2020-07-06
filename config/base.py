@@ -70,6 +70,7 @@ JIRA_CATEGORY_PROJECT_ROUTE_DICT = {
     'General': (JIRA_PROJECTS[2], JIRA_PROJECT_REQUEST_TYPES[2]),
     'Sentinel': (JIRA_PROJECTS[3], JIRA_PROJECT_REQUEST_TYPES[3]),
     'Chase': (JIRA_PROJECTS[4], JIRA_PROJECT_REQUEST_TYPES[4]),
+    'DCOS': (JIRA_PROJECTS[2], JIRA_PROJECT_REQUEST_TYPES[2]),
     'Omero': (JIRA_PROJECTS[2], JIRA_PROJECT_REQUEST_TYPES[2]),
 }
 
@@ -85,10 +86,10 @@ MAIL_SECRET_KEY = conn_info["SMTP"]["SECURE_KEY"]
 
 ALLOCATION_SPONSOR_EMAIL_LOOKUP = {
     'cas': 'rkc7h@virginia.edu',
-    'seas': 'nem2p@virginia.edu',
-    'dsi': 'amb3xa@virginia.edu',
-    'hs': 'jcm6t@virginia.edu',
-    'other': 'amb3xa@virginia.edu'
+    'seas': 'rkc7h@virginia.edu',
+    'dsi': 'rkc7h@virginia.edu',
+    'hs': 'rkc7h@virginia.edu',
+    'other': 'rkc7h@virginia.edu'
 }
 
 KONAMI_ENPOINT_DEFAULT_SENDER = 'rkc7h@virginia.edu'

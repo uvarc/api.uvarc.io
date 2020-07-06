@@ -70,6 +70,7 @@ JIRA_CATEGORY_PROJECT_ROUTE_DICT = {
     'General': (JIRA_PROJECTS[2], JIRA_PROJECT_REQUEST_TYPES[2]),
     'Sentinel': (JIRA_PROJECTS[3], JIRA_PROJECT_REQUEST_TYPES[3]),
     'Chase': (JIRA_PROJECTS[4], JIRA_PROJECT_REQUEST_TYPES[4]),
+    'DCOS': (JIRA_PROJECTS[2], JIRA_PROJECT_REQUEST_TYPES[2]),
     'Omero': (JIRA_PROJECTS[2], JIRA_PROJECT_REQUEST_TYPES[2]),
 }
 
@@ -85,9 +86,9 @@ MAIL_SECRET_KEY = conn_info["SMTP"]["SECURE_KEY"]
 
 ALLOCATION_SPONSOR_EMAIL_LOOKUP = {
     'cas': 'jh8h@virginia.edu',
-    'seas': 'pmn3d@virginia.edu',
+    'seas': 'wbk3a@virginia.edu',
     'dsi': 'lpa2a@virginia.edu ',
-    'hs': 'jcm6t@virginia.edu',
+    'hs': 'wbk3a@virginia.edu',
     'other': 'lpa2a@virginia.edu'
 }
 
