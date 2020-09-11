@@ -85,12 +85,11 @@ MAIL_TIMEOUT = 10
 MAIL_SECRET_KEY = conn_info["SMTP"]["SECURE_KEY"]
 
 ALLOCATION_SPONSOR_EMAIL_LOOKUP = {
-    'cas': 'jh8h@virginia.edu',
+    'cas': 'dh2t@virginia.edu',
     'seas': 'wbk3a@virginia.edu',
     'dsi': 'lpa2a@virginia.edu',
     'hs': 'jcm6t@virginia.edu',
     'other': 'lpa2a@virginia.edu'
 }
-
 KONAMI_ENPOINT_DEFAULT_SENDER = 'nem2p@virginia.edu'
 KONAMI_ENPOINT_DEFAULT_RECEIVER = 'nem2p@virginia.edu'
