@@ -95,6 +95,7 @@ def _process_support_request(form_elements_dict, service_host, version):
         summary=summary_str,
         desc=desc_str
     )
+
     # ticket_response = '{"issueKey":"RIV-1082"}'
     try:
         dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
@@ -160,6 +161,7 @@ def general_support_request(version='v2'):
         response = json.loads(_process_support_request(
             request.form, request.host_url if 'localhost' in request.host_url else request.host_url.replace(
                 'http', 'https'), version))
+        response_url = "http://localhost:1313/thank-you/?" if 'localhost' in request.host_url else "https://www.rc.virginia.edu/thank-you/?"
         if ('REQUEST_CLIENT' in request.form
                 and request.form['REQUEST_CLIENT'] == 'ITHRIV'):
             return make_response(jsonify(
@@ -171,7 +173,7 @@ def general_support_request(version='v2'):
             ), 200)
         else:
             return redirect(
-                ''.join([f.url, '&status=', '200 OK', '&', 'message=',
+                ''.join([response_url, '&status=', '200 OK', '&', 'message=',
                          'Support request ({}) successfully '
                          'created'.format(response['issueKey'])]))
     except Exception as ex:
@@ -188,7 +190,7 @@ def general_support_request(version='v2'):
             ), 501)
         else:
             return redirect(
-                ''.join([f.url, '&status=', 'error', '&', 'message=',
+                ''.join([response_url, '&status=', 'error', '&', 'message=',
                          'Error submitting support '
                          'request: {}'.format(str(ex))]))
 
