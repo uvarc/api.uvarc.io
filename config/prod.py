@@ -86,7 +86,7 @@ MAIL_TIMEOUT = 10
 MAIL_SECRET_KEY = conn_info["SMTP"]["SECURE_KEY"]
 
 ALLOCATION_SPONSOR_EMAIL_LOOKUP = {
-    'cas': 'tm7ds@virginia.edu',
+    'cas': 'tm7ds@virginia.edu,dh2t@virginia.edu',
     'seas': 'wbk3a@virginia.edu',
     'dsi': 'lpa2a@virginia.edu',
     'hs': 'jcm6t@virginia.edu',
