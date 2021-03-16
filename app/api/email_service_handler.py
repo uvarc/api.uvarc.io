@@ -136,7 +136,7 @@ class EmailService():
         )
 
         self.send_email(subject, sender=from_email_address,
-                        recipients=[to_email_address],
+                        recipients=to_email_address.split(','),
                         text_body=text_body,
                         html_body=html_body)
 
