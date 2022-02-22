@@ -135,17 +135,17 @@ def _process_support_request(form_elements_dict, service_host, version):
     if ((form_elements_dict.get('ptao1') is not None and form_elements_dict['ptao1'].lstrip() != '' and
          form_elements_dict.get('ptao2') is not None and form_elements_dict['ptao2'].lstrip() != '' and
          form_elements_dict.get('ptao3') is not None and form_elements_dict['ptao3'].lstrip() != '' and
-         form_elements_dict.get(
-             'ptao4') is not None and form_elements_dict['ptao4'].lstrip() != ''
-         ) or (form_elements_dict.get('ptao') is not None and form_elements_dict['ptao'].lstrip() != '')):
-        email_service.send_purchase_ack_email(
-            from_email_address='hpc-support@virginia.edu',
-            to_email_address=form_elements_dict['email'],
-            cc_email_addresses=cc_email_addresses_list,
-            subject=summary_str,
-            ticket_id=json.loads(ticket_response)['issueKey'],
-            content_dict=form_elements_dict
-        )
+         form_elements_dict.get('ptao4') is not None and form_elements_dict['ptao4'].lstrip() != '') or 
+         (form_elements_dict.get('ptao') is not None and form_elements_dict['ptao'].lstrip() != '')):
+        pass
+        # email_service.send_purchase_ack_email(
+        #     from_email_address='hpc-support@virginia.edu',
+        #     to_email_address=form_elements_dict['email'],
+        #     cc_email_addresses=cc_email_addresses_list,
+        #     subject=summary_str,
+        #     ticket_id=json.loads(ticket_response)['issueKey'],
+        #     content_dict=form_elements_dict
+        # )
 
     return ticket_response
 
