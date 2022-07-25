@@ -3,7 +3,6 @@ import requests
 
 
 class JiraServiceHandler:
-    """Handles communicatio with JIRA apis."""
     def __init__(self, app, is_cloud=False):
         self._connect_host_url, self._auth = self.__get_jira_host_info(
             app, is_cloud)
@@ -73,7 +72,6 @@ class JiraServiceHandler:
             raise ex
 
     def create_new_customer(self, name, email):
-        """Creates new customer in JIRA."""
         try:
             headers = {
                 "Content-Type": "application/json",
@@ -105,9 +103,9 @@ class JiraServiceHandler:
         summary=None,
         desc=None,
         department=None,
-        school=None
+        school=None,
+        is_rc_project=False
     ):
-        """Creates new ticket in JIRA."""
         if(reporter is None):
             reporter = self._default_reporter
         # if(participants is None):
@@ -120,13 +118,15 @@ class JiraServiceHandler:
             "requestTypeId": jira_ticket_route_info[1],
             "requestFieldValues": {
                 "summary": summary,
-                "description": desc,
-                "department": department,
-                "school": school
+                "description": desc
             },
             "requestParticipants": participants,
             "raiseOnBehalfOf": reporter
         }
+
+        if is_rc_project and (department is not None or school is not None):
+            payload["requestFieldValues"]["customfield_10241"] = department
+            payload["requestFieldValues"]["customfield_10242"] = school
 
         if components:
             payload["requestFieldValues"]["components"] = []
@@ -143,7 +143,6 @@ class JiraServiceHandler:
         return response.text
 
     def add_ticket_comment(self, ticket_id, comment):
-        """Creates new ticket comment in JIRA."""
         headers = {
             "Content-Type": "application/json",
         }
@@ -164,7 +163,6 @@ class JiraServiceHandler:
         return response.text
 
     def get_all_tickets_by_customer(self, reporter):
-        """Fetched all customer tickets."""
         try:
             headers = {
                 "Content-Type": "application/json",

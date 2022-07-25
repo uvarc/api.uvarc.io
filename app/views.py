@@ -29,12 +29,14 @@ def _process_support_request(form_elements_dict, service_host, version):
     components = None
     if('request-title' in form_elements_dict):
         request_title = form_elements_dict['request-title']
+    is_rc_project = False
     if "JIRA_PROJECT_TICKET_ROUTE" in form_elements_dict:
         project_ticket_route = tuple(form_elements_dict.get(
             "JIRA_PROJECT_TICKET_ROUTE").split('|'))
         if(len(project_ticket_route) > 2):
             components = project_ticket_route[2]
     else:
+        is_rc_project = True
         project_ticket_route =\
             app.config['JIRA_CATEGORY_PROJECT_ROUTE_DICT'][
                 category.strip().title()]
@@ -73,7 +75,7 @@ def _process_support_request(form_elements_dict, service_host, version):
             submitted_attribs.remove(attrib)
 
     drop_attribs = [
-        'op', 'categories', 'request_title',
+        'op', 'categories', 'request_title', 'department', 'school',
         'request-title', 'JIRA_PROJECT_TICKET_ROUTE',
         'REQUEST_CLIENT'
     ]
@@ -101,7 +103,8 @@ def _process_support_request(form_elements_dict, service_host, version):
         summary=summary_str,
         desc=desc_str,
         department=department,
-        school=school
+        school=school,
+        update_custom_fields=is_rc_project
     )
 
     # ticket_response = '{"issueKey":"RIV-1082"}'
