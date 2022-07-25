@@ -45,6 +45,8 @@ def _process_support_request(form_elements_dict, service_host, version):
     name = None
     email = None
     username = None
+    department = None
+    school = None
     format_attribs_order = ['name', 'email', 'uid',
                             'department', 'category', 'description']
     for attrib in format_attribs_order:
@@ -59,6 +61,10 @@ def _process_support_request(form_elements_dict, service_host, version):
                     email = value
                 if(attrib == 'uid'):
                     username = value
+                if attrib == 'department':
+                    department = value
+                if attrib == 'school':
+                    school = value
 
             desc_str = ''.join([desc_str, '{}: {}\n'.format(
                 str(attrib).strip().title(), value)])
@@ -83,17 +89,19 @@ def _process_support_request(form_elements_dict, service_host, version):
         summary_str = '{} Request'.format(category)
 
     if (name is not None and name != '' and email is not None and email != ''):
-        jira_service_handler.createNewCustomer(
+        jira_service_handler.create_new_customer(
             name=name,
             email=email,
         )
-    ticket_response = jira_service_handler.createNewTicket(
+    ticket_response = jira_service_handler.create_new_ticket(
         reporter=email,
         project_name=project_ticket_route[0],
         request_type=project_ticket_route[1],
         components=components,
         summary=summary_str,
-        desc=desc_str
+        desc=desc_str,
+        department=department,
+        school=school
     )
 
     # ticket_response = '{"issueKey":"RIV-1082"}'
@@ -124,7 +132,7 @@ def _process_support_request(form_elements_dict, service_host, version):
             content_dict=form_elements_dict
         )
 
-        jira_service_handler.addTicketComment(json.loads(
+        jira_service_handler.add_ticket_comment(json.loads(
             ticket_response)['issueKey'], 'Approval request sent to the sponsor for confirmation')
 
     cc_email_addresses_list = None
@@ -286,7 +294,7 @@ def confirm_hpc_allocation_request(token, version='v2'):
                             ['\n\nExplanation: ', request.form['deans-explanation']]
 
                 response = json.loads(JiraServiceHandler(
-                    app, version != "v1").addTicketComment(ticket_id, ''.join(comment_list)))
+                    app, version != "v1").(ticket_id, ''.join(comment_list)))
                 if ('errorMessage' in response
                     and response['errorMessage'] is not None
                         and response['errorMessage'] != ''):

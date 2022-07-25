@@ -1,9 +1,9 @@
 import json
-
 import requests
 
 
 class JiraServiceHandler:
+    """Handles communicatio with JIRA apis."""
     def __init__(self, app, is_cloud=False):
         self._connect_host_url, self._auth = self.__get_jira_host_info(
             app, is_cloud)
@@ -72,7 +72,8 @@ class JiraServiceHandler:
             print(str(ex))
             raise ex
 
-    def createNewCustomer(self, name, email):
+    def create_new_customer(self, name, email):
+        """Creates new customer in JIRA."""
         try:
             headers = {
                 "Content-Type": "application/json",
@@ -94,14 +95,19 @@ class JiraServiceHandler:
         except Exception as ex:
             print("Couldn't create customer {} in JIRA: {}".format(name, str(ex)))
 
-    def createNewTicket(self,
-                        reporter=None,
-                        participants=None,
-                        project_name='GENERAL_SUPPORT',
-                        request_type='GENERAL_SUPPORT_GET_IT_HELP',
-                        components=None,
-                        summary=None,
-                        desc=None):
+    def create_new_ticket(
+        self,
+        reporter=None,
+        participants=None,
+        project_name='GENERAL_SUPPORT',
+        request_type='GENERAL_SUPPORT_GET_IT_HELP',
+        components=None,
+        summary=None,
+        desc=None,
+        department=None,
+        school=None
+    ):
+        """Creates new ticket in JIRA."""
         if(reporter is None):
             reporter = self._default_reporter
         # if(participants is None):
@@ -114,7 +120,9 @@ class JiraServiceHandler:
             "requestTypeId": jira_ticket_route_info[1],
             "requestFieldValues": {
                 "summary": summary,
-                "description": desc
+                "description": desc,
+                "department": department,
+                "school": school
             },
             "requestParticipants": participants,
             "raiseOnBehalfOf": reporter
@@ -126,15 +134,16 @@ class JiraServiceHandler:
                 if component.lstrip() != '':
                     payload["requestFieldValues"]["components"].append(
                         {"name": component})
-        r = requests.post(
+        response = requests.post(
             ''.join([self._connect_host_url, 'servicedeskapi/request']),
             headers=headers,
             data=json.dumps(payload),
             auth=self._auth
         )
-        return r.text
+        return response.text
 
-    def addTicketComment(self, ticket_id, comment):
+    def add_ticket_comment(self, ticket_id, comment):
+        """Creates new ticket comment in JIRA."""
         headers = {
             "Content-Type": "application/json",
         }
@@ -145,16 +154,17 @@ class JiraServiceHandler:
                 "public": False
             }
         )
-        r = requests.post(
+        response = requests.post(
             ''.join([self._connect_host_url,
                      'servicedeskapi/request/{issueIdOrKey}/comment'.replace('{issueIdOrKey}', ticket_id)]),
             headers=headers,
             data=payload,
             auth=self._auth
         )
-        return r.text
+        return response.text
 
     def get_all_tickets_by_customer(self, reporter):
+        """Fetched all customer tickets."""
         try:
             headers = {
                 "Content-Type": "application/json",
