@@ -50,7 +50,7 @@ def _process_support_request(form_elements_dict, service_host, version):
     department = None
     school = None
     format_attribs_order = ['name', 'email', 'uid',
-                            'department', 'category', 'description']
+                            'department', 'school', 'category', 'description']
     for attrib in format_attribs_order:
         if (attrib in submitted_attribs):
             if(attrib == 'category'):
@@ -104,7 +104,7 @@ def _process_support_request(form_elements_dict, service_host, version):
         desc=desc_str,
         department=department,
         school=school,
-        update_custom_fields=is_rc_project
+        is_rc_project=is_rc_project
     )
 
     # ticket_response = '{"issueKey":"RIV-1082"}'

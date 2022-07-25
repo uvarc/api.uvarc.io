@@ -118,7 +118,7 @@ class JiraServiceHandler:
             "requestTypeId": jira_ticket_route_info[1],
             "requestFieldValues": {
                 "summary": summary,
-                "description": desc
+                "description": desc,
             },
             "requestParticipants": participants,
             "raiseOnBehalfOf": reporter
@@ -127,6 +127,7 @@ class JiraServiceHandler:
         if is_rc_project and (department is not None or school is not None):
             payload["requestFieldValues"]["customfield_10241"] = department
             payload["requestFieldValues"]["customfield_10242"] = school
+
 
         if components:
             payload["requestFieldValues"]["components"] = []
