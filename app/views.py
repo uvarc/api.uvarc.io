@@ -294,7 +294,7 @@ def confirm_hpc_allocation_request(token, version='v2'):
                             ['\n\nExplanation: ', request.form['deans-explanation']]
 
                 response = json.loads(JiraServiceHandler(
-                    app, version != "v1").(ticket_id, ''.join(comment_list)))
+                    app, version != "v1").add_ticket_comment(ticket_id, ''.join(comment_list)))
                 if ('errorMessage' in response
                     and response['errorMessage'] is not None
                         and response['errorMessage'] != ''):
