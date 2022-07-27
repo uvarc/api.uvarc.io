@@ -102,8 +102,8 @@ class JiraServiceHandler:
         components=None,
         summary=None,
         desc=None,
-        department=None,
-        school=None,
+        department='',
+        school='',
         is_rc_project=False
     ):
         if(reporter is None):
@@ -118,13 +118,13 @@ class JiraServiceHandler:
             "requestTypeId": jira_ticket_route_info[1],
             "requestFieldValues": {
                 "summary": summary,
-                "description": desc,
+                "description": desc
             },
             "requestParticipants": participants,
             "raiseOnBehalfOf": reporter
         }
 
-        if is_rc_project and (department is not None or school is not None):
+        if is_rc_project and (department!='' or school!=''):
             payload["requestFieldValues"]["customfield_10241"] = department
             payload["requestFieldValues"]["customfield_10242"] = school
 

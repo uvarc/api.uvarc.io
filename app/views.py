@@ -40,15 +40,14 @@ def _process_support_request(form_elements_dict, service_host, version):
         project_ticket_route =\
             app.config['JIRA_CATEGORY_PROJECT_ROUTE_DICT'][
                 category.strip().title()]
-
     submitted_attribs = list(form_elements_dict)
     desc_str = ''
     desc_html_str = ''
     name = None
     email = None
     username = None
-    department = None
-    school = None
+    department = ''
+    school = ''
     format_attribs_order = ['name', 'email', 'uid',
                             'department', 'school', 'category', 'description']
     for attrib in format_attribs_order:
@@ -67,15 +66,15 @@ def _process_support_request(form_elements_dict, service_host, version):
                     department = value
                 if attrib == 'school':
                     school = value
-
-            desc_str = ''.join([desc_str, '{}: {}\n'.format(
-                str(attrib).strip().title(), value)])
-            desc_html_str = ''.join([desc_html_str, '{}: {} \n\r'.format(
-                str(attrib).strip().title(), value)])
+            if attrib != 'department' and attrib != 'school':
+                desc_str = ''.join([desc_str, '{}: {}\n'.format(
+                    str(attrib).strip().title(), value)])
+                desc_html_str = ''.join([desc_html_str, '{}: {} \n\r'.format(
+                    str(attrib).strip().title(), value)])
             submitted_attribs.remove(attrib)
 
     drop_attribs = [
-        'op', 'categories', 'request_title', 'department', 'school',
+        'op', 'categories', 'request_title',
         'request-title', 'JIRA_PROJECT_TICKET_ROUTE',
         'REQUEST_CLIENT'
     ]
@@ -106,7 +105,7 @@ def _process_support_request(form_elements_dict, service_host, version):
         school=school,
         is_rc_project=is_rc_project
     )
-
+    print(ticket_response)
     # ticket_response = '{"issueKey":"RIV-1082"}'
     try:
         dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
