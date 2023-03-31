@@ -1,28 +1,29 @@
 import json
+import os
 
 NAME = 'UVARC Service'
 VERSION = '0.2'
 
-
-def fetch_connections_info(): return json.load(
-    open('/etc/private/uvarc/connections.json'))
-
+def fetch_connections_info():
+    if 'SETTINGS_JSON' in os.environ:
+        settings = json.loads(os.environ['SETTINGS_JSON'])
+        settings["JIRA_CLOUD"]['CLIENT_SECRET'] = os.environ['JIRA_CLOUD_CLIENT_SECRET']
+        settings["SMTP"]['SECURE_KEY'] = os.environ['SMTP_CLIENT_SECRET']
+        settings["AWS"]['CLIENT_ID'] = os.environ['AWS_CLIENT_ID']
+        settings["AWS"]['CLIENT_SECRET'] = os.environ['AWS_CLIENT_SECRET']
+        return settings
+    else:
+        return json.load(open('/etc/private/uvarc/connections.json'))
 
 conn_info = fetch_connections_info()
+print(conn_info)
 
 ENV_BOOL_FLAGS_TUPLE = (conn_info['ENV'] in (
     'local', 'dev'), conn_info['ENV'] == 'prod')
 
 DEVELOPMENT, PRODUCTION = ENV_BOOL_FLAGS_TUPLE
 CORS_ENABLED = False
-DEBUG = False
 
-JIRA_CONN_INFO = {
-    'HOST': conn_info['JIRA']['HOSTS'][0],
-    'PORT': conn_info['JIRA']['PORT'],
-    'CLIENT_ID': conn_info['JIRA']['CLIENT_ID'],
-    'PASSWORD': conn_info['JIRA']['CLIENT_SECRET']
-}
 JIRA_CLOUD_CONN_INFO = {
     'HOST': conn_info['JIRA_CLOUD']['HOSTS'][0],
     'PORT': conn_info['JIRA_CLOUD']['PORT'],
@@ -30,8 +31,14 @@ JIRA_CLOUD_CONN_INFO = {
     'PASSWORD': conn_info['JIRA_CLOUD']['CLIENT_SECRET']
 }
 
+AWS_CONN_INFO = {
+    'CLIENT_ID': conn_info['AWS']['CLIENT_ID'],
+    'CLIENT_SECRET': conn_info['AWS']['CLIENT_SECRET']
+}
+
 JIRA_PROJECTS = ('RIVANNA', 'IVY', 'GENERAL_SUPPORT',
                  'SENTINEL', 'CHASE', 'ACCORD_SUPPORT', 'UVA_RESEARCH_CONCIERGE_SERVICES')
+
 JIRA_PROJECT_REQUEST_TYPES = (
     'RIVANNA_GET_IT_HELP',
     'IVY_GET_IT_HELP',
@@ -89,13 +96,28 @@ MAIL_USE_TLS = False
 MAIL_TIMEOUT = 10
 MAIL_SECRET_KEY = conn_info["SMTP"]["SECURE_KEY"]
 
-ALLOCATION_SPONSOR_EMAIL_LOOKUP = {
-    'cas': 'rkc7h@virginia.edu',
-    'seas': 'rkc7h@virginia.edu',
-    'dsi': 'rkc7h@virginia.edu',
-    'hs': 'rkc7h@virginia.edu',
-    'other': 'rkc7h@virginia.edu'
-}
+if DEVELOPMENT:
+    DEBUG = True
+    ALLOCATION_SPONSOR_EMAIL_LOOKUP = {
+        'cas': 'rkc7h@virginia.edu',
+        'seas': 'rkc7h@virginia.edu',
+        'dsi': 'rkc7h@virginia.edu',
+        'hs': 'rkc7h@virginia.edu',
+        'other': 'rkc7h@virginia.edu'
+    }
 
-KONAMI_ENPOINT_DEFAULT_SENDER = 'rkc7h@virginia.edu'
-KONAMI_ENPOINT_DEFAULT_RECEIVER = 'rkc7h@virginia.edu'
+    KONAMI_ENPOINT_DEFAULT_SENDER = 'rkc7h@virginia.edu'
+    KONAMI_ENPOINT_DEFAULT_RECEIVER = 'rkc7h@virginia.edu'
+
+if PRODUCTION:
+    DEBUG = False
+    ALLOCATION_SPONSOR_EMAIL_LOOKUP = {
+        'cas': 'lg8b@virginia.edu',
+        'seas': 'wbk3a@virginia.edu',
+        'dsi': 'vsh@virginia.edu',
+        'hs': 'jcm6t@virginia.edu',
+        'other': 'vsh@virginia.edu'
+    }
+    KONAMI_ENPOINT_DEFAULT_SENDER = 'nem2p@virginia.edu'
+    KONAMI_ENPOINT_DEFAULT_RECEIVER = 'nem2p@virginia.edu'
+

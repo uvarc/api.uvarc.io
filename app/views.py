@@ -1,15 +1,13 @@
 # encoding=utf8
 from app.api.jira_service_handler import JiraServiceHandler
 from app.api import ALLOC_APPROVE_CONFIRM_TYPES, RC_SMALL_LOGO_URL, DecimalEncoder
-from app import app, limiter, email_service
+from app import app, limiter, email_service, aws_service
 from itsdangerous import URLSafeTimedSerializer
 import boto3
 import furl
 from flask import jsonify, make_response, request, redirect, render_template
 import json
 import sys
-reload(sys)
-sys.setdefaultencoding('utf8')
 
 
 def unauthorized():
@@ -90,10 +88,14 @@ def _process_support_request(form_elements_dict, service_host, version):
         summary_str = '{} Request'.format(category)
 
     if (name is not None and name != '' and email is not None and email != ''):
-        jira_service_handler.create_new_customer(
-            name=name,
-            email=email,
-        )
+        try:
+            jira_service_handler.create_new_customer(
+                name=name,
+                email=email,
+            )
+        except Exception as ex:
+            app.log_exception(ex)
+            print(ex) 
     ticket_response = jira_service_handler.create_new_ticket(
         reporter=email,
         project_name=project_ticket_route[0],
@@ -107,22 +109,36 @@ def _process_support_request(form_elements_dict, service_host, version):
     )
     print(ticket_response)
     # ticket_response = '{"issueKey":"RIV-1082"}'
-    try:
-        dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
-        table = dynamodb.Table('jira-tracking')
+    aws_service.update_dynamodb_jira_tracking(
+        json.loads(ticket_response)['issueKey'],
+        json.loads(ticket_response)['createdDate']['jira'],
+        username,
+        email,
+        summary_str
+    )
 
-        response = table.put_item(
-            Item={
-                'key': json.loads(ticket_response)['issueKey'],
-                'submitted': json.loads(ticket_response)['createdDate']['jira'],
-                'uid': username,
-                'email': email,
-                'type': summary_str
-            }
-        )
-        print(json.dumps(response, indent=4, cls=DecimalEncoder))
-    except Exception as ex:
-        print(str(ex))
+    # try:
+    #     dynamodbSession = boto3.Session(
+    #         aws_access_key_id='AKIAW5BKWSI5YOXZR2FO', 
+    #         aws_secret_access_key='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', 
+    #         region_name='us-east-1'
+    #     )
+    #     dynamodb = dynamodbSession.resource('dynamodb')
+    #     table = dynamodb.Table('jira-tracking')
+
+    #     response = table.put_item(
+    #         Item={
+    #             'key': json.loads(ticket_response)['issueKey'],
+    #             'submitted': json.loads(ticket_response)['createdDate']['jira'],
+    #             'uid': username,
+    #             'email': email,
+    #             'type': summary_str
+    #         }
+    #     )
+    #     print(json.dumps(response, indent=4, cls=DecimalEncoder))
+    # except Exception as ex:
+    #     app.log_exception(ex);
+    #     print(str(ex))
 
     if (category == 'Deans Allocation'):
         email_service.send_hpc_allocation_confirm_email(
@@ -187,6 +203,7 @@ def general_support_request(version='v2'):
                          'Support request ({}) successfully '
                          'created'.format(response['issueKey'])]))
     except Exception as ex:
+        app.log_exception(ex)
         print(ex)
         if ('REQUEST_CLIENT' in request.form
                 and request.form['REQUEST_CLIENT'] == 'ITHRIV'):
@@ -213,6 +230,7 @@ def get_all_customer_requests(version='v2'):
                 JiraServiceHandler(app, version != "v1").get_all_tickets_by_customer(
                     request.values.get('email'))))
     except Exception as ex:
+        app.log_exception(ex)
         print(ex)
         return make_response(jsonify(
             {
@@ -244,6 +262,8 @@ def hpc_allocation_request(version='v2'):
                      'HPC Allocation request ({}) successfully '
                      'created'.format(response['issueKey'])]))
     except Exception as ex:
+        app.log_exception(ex)
+        print(ex)
         return redirect(
             ''.join([f.url, '&status=', 'error', '&', 'message=',
                      'Error submitting HPC Allocation '
@@ -311,6 +331,8 @@ def confirm_hpc_allocation_request(token, version='v2'):
         raise Exception(
             'The link for confirmation received has either expired or invalid. Please contact research computing')
     except Exception as ex:
+        app.log_exception(ex)
+        print(ex)
         return render_template(
             'confirm_response.html',
             logo_url=RC_SMALL_LOGO_URL,
@@ -338,6 +360,8 @@ def update_konami_discovery():
         else:
             raise Exception('Email is missing')
     except Exception as ex:
+        app.log_exception(ex)
+        print(ex)
         return make_response(jsonify(
             {
                 "status": "error",

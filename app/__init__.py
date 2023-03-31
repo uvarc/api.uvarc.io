@@ -11,6 +11,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_marshmallow import Marshmallow
 from flask_sso import SSO
+from app.api.aws_service_handler import AWSServiceHandler
 from app.api.email_service_handler import EmailService
 
 
@@ -19,8 +20,14 @@ app = Flask(__name__, instance_relative_config=True)
 # Load the configuration from the instance folder
 app.config.from_pyfile('settings.py')
 
-if(app.config['DEBUG']):
+if (app.config['DEBUG']):
     app.debug = True
+    log_level = logging.DEBUG
+else:
+    log_level = logging.INFO
+
+logging.basicConfig(filename='/var/log/api-uvarc-service.log', level=log_level,
+                    format=f'%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s')
 
 # Enable CORS
 if(app.config['CORS_ENABLED']):
@@ -33,9 +40,11 @@ ma = Marshmallow(app)
 # email service
 email_service = EmailService(app)
 
+#aws service
+aws_service = AWSServiceHandler(app)
+
 # Single Signon
 sso = SSO(app=app)
-
 # Token Authentication
 auth = HTTPTokenAuth('Bearer')
 

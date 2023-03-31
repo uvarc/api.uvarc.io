@@ -1,0 +1,36 @@
+version: "3.7"
+networks:
+  api_uvarc_io_network:
+    name: api_uvarc_io_network
+    external: false
+services:
+  postfix:
+    image: boky/postfix
+    container_name: postfix
+    environment:
+      - ALLOWED_SENDER_DOMAINS=api_uvarc_io.org, virginia.edu
+    ports:
+      - "25:25"
+    networks:
+      - api_uvarc_io_network
+  api_uvarc_io_service:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        - BUILD_ENV=docker
+    # volumes:
+    #   - ./app:/opt/local/non_root_user/api.uvarc.io/app
+    #   - ./config:/opt/local/non_root_user/api.uvarc.io/config
+      # - /etc/private/uvarc/connections.json:/etc/private/api.uvarc.io/connections.json
+      # - ./nginx_app.conf:/etc/nginx/sites-available/default
+      # - ./supervisor_app.conf:/etc/supervisor/conf.d/supervisor_app.conf
+      # - ./supervisor_app.conf:/etc/supervisor/supervisord.conf
+    container_name: api_uvarc_io_service
+    ports:
+      - "5000:5000"
+    networks:
+      - api_uvarc_io_network
+    depends_on:
+      - postfix
+

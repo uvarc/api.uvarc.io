@@ -5,6 +5,14 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Python: Current File",
+      "type": "python",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
       "name": "Python: Current File (Integrated Terminal)",
       "type": "python",
       "request": "launch",
@@ -37,7 +45,11 @@
       "request": "launch",
       "program": "${workspaceFolder}/manage.py",
       "console": "integratedTerminal",
-      "args": ["runserver", "--noreload", "--nothreading"],
+      "args": [
+        "runserver",
+        "--noreload",
+        "--nothreading"
+      ],
       "django": true
     },
     {
@@ -47,9 +59,13 @@
       "module": "flask",
       "env": {
         "FLASK_APP": "app/__init__.py",
-        "FLASK_RUN_PORT": "5002"
+        "FLASK_RUN_PORT": "5000"
       },
-      "args": ["run", "--no-debugger", "--no-reload"],
+      "args": [
+        "run",
+        "--no-debugger",
+        "--no-reload"
+      ],
       "jinja": true
     },
     {
