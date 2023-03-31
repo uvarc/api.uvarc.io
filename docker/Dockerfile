@@ -35,6 +35,9 @@ RUN sudo chown  -R $NON_ROOT_USER /var/lib/nginx
 
 ADD ./requirements.txt .
 RUN pip3 install -r requirements.txt
+RUN supervisord -v
+RUN pip3 install supervisor
+RUN supervisord -v
 EXPOSE 5000
 ENV FLASK_APP app/__init__.py
 ENV FLASK_DEBUG 0
