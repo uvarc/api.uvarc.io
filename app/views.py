@@ -107,7 +107,9 @@ def _process_support_request(form_elements_dict, service_host, version):
         school=school,
         is_rc_project=is_rc_project
     )
-    print(ticket_response)
+
+    app.logger.info(ticket_response)
+    print('Ticket Response: '+ str(ticket_response))
     # ticket_response = '{"issueKey":"RIV-1082"}'
     aws_service.update_dynamodb_jira_tracking(
         json.loads(ticket_response)['issueKey'],
