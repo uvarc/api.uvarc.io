@@ -7,10 +7,10 @@ VERSION = '0.2'
 def fetch_connections_info():
     if 'SETTINGS_JSON' in os.environ:
         settings = json.loads(os.environ['SETTINGS_JSON'])
-        settings["JIRA_CLOUD"]['CLIENT_SECRET'] = os.environ['JIRA_CLOUD_CLIENT_SECRET']
-        settings["SMTP"]['SECURE_KEY'] = os.environ['SMTP_CLIENT_SECRET']
-        settings["AWS"]['CLIENT_ID'] = os.environ['AWS_CLIENT_ID']
-        settings["AWS"]['CLIENT_SECRET'] = os.environ['AWS_CLIENT_SECRET']
+        settings["JIRA_CLOUD"]['CLIENT_SECRET'] = os.environ['JIRA_CLOUD_CLIENT_SECRET'].replace('\n','')
+        settings["SMTP"]['SECURE_KEY'] = os.environ['SMTP_CLIENT_SECRET'].replace('\n','')
+        settings["AWS"]['CLIENT_ID'] = os.environ['AWS_CLIENT_ID'].replace('\n','')
+        settings["AWS"]['CLIENT_SECRET'] = os.environ['AWS_CLIENT_SECRET'].replace('\n','')
         return settings
     else:
         return json.load(open('/etc/private/uvarc/connections.json'))
