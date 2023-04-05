@@ -117,9 +117,9 @@ class EmailService():
             "confirm_email.html",
             logo_url=RC_SMALL_LOGO_URL,
             current_date=current_date,
-            confirm_approve_url=confirm_approve_url,
-            confirm_disapprove_url=confirm_disapprove_url,
-            confirm_part_approve_url=confirm_part_approve_url,
+            confirm_approve_url=confirm_approve_url.replace('httpss:','https'),
+            confirm_disapprove_url=confirm_disapprove_url.replace('httpss:','https'),
+            confirm_part_approve_url=confirm_part_approve_url.replace('httpss:','https'),
             tracking_code=tracking_code,
             content_dict=content_dict
         )
@@ -127,9 +127,9 @@ class EmailService():
         text_body = render_template(
             "confirm_email.txt",
             current_date=current_date,
-            confirm_approve_url=confirm_approve_url,
-            confirm_disapprove_url=confirm_disapprove_url,
-            confirm_part_approve_url=confirm_part_approve_url,
+            confirm_approve_url=confirm_approve_url.replace('httpss:','https'),
+            confirm_disapprove_url=confirm_disapprove_url.replace('httpss:','https'),
+            confirm_part_approve_url=confirm_part_approve_url.replace('httpss:','https'),
             tracking_code=tracking_code,
             content_dict=content_dict
 
