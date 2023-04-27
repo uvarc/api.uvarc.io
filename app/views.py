@@ -190,7 +190,7 @@ def general_support_request(version='v2'):
         f.remove(['ticket_id', 'message', 'status'])
         response = json.loads(_process_support_request(
             request.form, request.host_url if 'localhost' in request.host_url else request.host_url.replace(
-                'http', 'https'), version))
+                'http', 'https').replace('https//','https://'), version))
         response_url = "http://localhost:1313/thank-you/?" if 'localhost' in request.host_url else "https://www.rc.virginia.edu/thank-you/?"
         if ('REQUEST_CLIENT' in request.form
                 and request.form['REQUEST_CLIENT'] == 'ITHRIV'):
@@ -259,7 +259,7 @@ def hpc_allocation_request(version='v2'):
 
         response = json.loads(_process_support_request(
             request_form, request.host_url if 'localhost' in request.host_url else request.host_url.replace(
-                'http', 'https'), version))
+                'http', 'https').replace('https//','https://'), version))
 
         return redirect(
             ''.join([f.url, '&status=', '200 OK', '&', 'message=',
