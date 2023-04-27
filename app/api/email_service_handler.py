@@ -177,3 +177,107 @@ class EmailService():
                         html_body=html_body)
 
         return tracking_code
+
+    def send_storage_request_confirm_email(self,
+                                          from_email_address,
+                                          to_email_address,
+                                          subject, ticket_id,
+                                          callback_host, content_dict):
+        tracking_code = self.tracking_code()
+        if(callback_host.endswith('/')):
+            callback_host = callback_host[:-1]
+        confirm_approve_url = ''.join(
+            [
+                callback_host,
+                url_for(
+                    "confirm_storage_request", version="v2",
+                    token=URLSafeTimedSerializer(self.app.config['MAIL_SECRET_KEY']).dumps(
+                        ticket_id, salt=ALLOC_APPROVE_CONFIRM_TYPES[0]))
+            ]
+        )
+        confirm_disapprove_url = ''.join(
+            [
+                callback_host,
+                url_for(
+                    "confirm_storage_request", version="v2",
+                    token=URLSafeTimedSerializer(self.app.config['MAIL_SECRET_KEY']).dumps(
+                        ticket_id, salt=ALLOC_APPROVE_CONFIRM_TYPES[1]))
+            ]
+        )
+        confirm_part_approve_url = ''.join(
+            [
+                callback_host,
+                url_for(
+                    "confirm_storage_request", version="v2",
+                    token=URLSafeTimedSerializer(self.app.config['MAIL_SECRET_KEY']).dumps(
+                        ticket_id, salt=ALLOC_APPROVE_CONFIRM_TYPES[2]))
+            ]
+        )
+
+        current_date = datetime.now().strftime(
+            "%A, %B %d, %Y - %H:%M")
+
+        html_body = render_template(
+            "confirm_email_storage.html",
+            logo_url=RC_SMALL_LOGO_URL,
+            current_date=current_date,
+            confirm_approve_url=confirm_approve_url.replace('httpss:','https'),
+            confirm_disapprove_url=confirm_disapprove_url.replace('httpss:','https'),
+            confirm_part_approve_url=confirm_part_approve_url.replace('httpss:','https'),
+            tracking_code=tracking_code,
+            content_dict=content_dict
+        )
+
+        text_body = render_template(
+            "confirm_email_storage.txt",
+            current_date=current_date,
+            confirm_approve_url=confirm_approve_url.replace('httpss:','https'),
+            confirm_disapprove_url=confirm_disapprove_url.replace('httpss:','https'),
+            confirm_part_approve_url=confirm_part_approve_url.replace('httpss:','https'),
+            tracking_code=tracking_code,
+            content_dict=content_dict
+
+        )
+        print(text_body)
+        self.send_email(subject, sender=from_email_address,
+                        recipients=to_email_address.split(','),
+                        text_body=text_body,
+                        html_body=html_body)
+
+        return tracking_code
+
+    def send_storage_purchase_ack_email(self,
+                                from_email_address,
+                                to_email_address,
+                                cc_email_addresses,
+                                subject, ticket_id,
+                                content_dict):
+        tracking_code = self.tracking_code()
+
+        current_date = datetime.now().strftime(
+            "%A, %B %d, %Y - %H:%M")
+
+        html_body = render_template(
+            "purchase_ack_storage.html",
+            logo_url=RC_SMALL_LOGO_URL,
+            current_date=current_date,
+            ticket_id=ticket_id,
+            tracking_code=tracking_code,
+            content_dict=content_dict
+        )
+
+        text_body = render_template(
+            "purchase_ack_storage.txt",
+            current_date=current_date,
+            ticket_id=ticket_id,
+            tracking_code=tracking_code,
+            content_dict=content_dict
+        )
+
+        self.send_email(subject, sender=from_email_address,
+                        recipients=[to_email_address],
+                        cc_recipinents=cc_email_addresses,
+                        text_body=text_body,
+                        html_body=html_body)
+
+        return tracking_code

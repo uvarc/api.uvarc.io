@@ -1,0 +1,15 @@
+{% extends "base_email_storage.html" %} {% block content %}
+<p
+  style="font-family: sans-serif; font-size: 16px; font-weight: bold; margin: 0; Margin-bottom: 15px;"
+>
+  Support request ({{ ticket_id }}) Submitted on: {{ current_date }}
+</p>
+<br />
+<p
+  style="font-family: sans-serif; font-size: 14px; font-weight: bold; margin: 0; Margin-bottom: 15px;"
+>
+  Thank you for your purchase {{ content_dict["name"] }} ({{ content_dict["uid"]
+  }})! PTAOs are processed within 45 days of the order submission date. E-mail
+  the RC billing office at hpc-support@virginia.edu if you have any questions.
+</p>
+{% endblock %}

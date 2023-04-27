@@ -1,0 +1,15 @@
+Submitted on: {{ current_date }}
+
+{{ content_dict["name"] }} ({{ content_dict["uid"] }}) with a designated affiliation with UVA
+has submitted an allocation request for the following:
+--------------------------------------------------
+Email: {{ content_dict["email"] }}
+Department: {{ content_dict["department"] }}
+
+The project information is as follows:
+--------------------------------------
+
+Please place one of the following url in your browser to confirm your respomnse:
+Approve this request in full: {{ confirm_approve_url }}
+Reject this request: {{ confirm_disapprove_url }}
+Approve this request in part: {{ confirm_part_approve_url }}

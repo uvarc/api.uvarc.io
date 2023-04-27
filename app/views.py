@@ -1,6 +1,6 @@
 # encoding=utf8
 from app.api.jira_service_handler import JiraServiceHandler
-from app.api import ALLOC_APPROVE_CONFIRM_TYPES, RC_SMALL_LOGO_URL, DecimalEncoder
+from app.api import ALLOC_APPROVE_CONFIRM_TYPES, RC_SMALL_LOGO_URL, BII_COST_CENTERS, DS_COST_CENTERS, DecimalEncoder
 from app import app, limiter, email_service, aws_service
 from itsdangerous import URLSafeTimedSerializer
 import boto3
@@ -47,7 +47,7 @@ def _process_support_request(form_elements_dict, service_host, version):
     department = ''
     school = ''
     format_attribs_order = ['name', 'email', 'uid',
-                            'department', 'school', 'category', 'description']
+                            'department', 'school', 'category', 'description', 'cost-center']
     for attrib in format_attribs_order:
         if (attrib in submitted_attribs):
             if(attrib == 'category'):
@@ -64,6 +64,8 @@ def _process_support_request(form_elements_dict, service_host, version):
                     department = value
                 if attrib == 'school':
                     school = value
+                if attrib == 'cost-center':
+                    cost_center = value
             if attrib != 'department' and attrib != 'school':
                 desc_str = ''.join([desc_str, '{}: {}\n'.format(
                     str(attrib).strip().title(), value)])
@@ -92,12 +94,20 @@ def _process_support_request(form_elements_dict, service_host, version):
             jira_service_handler.create_new_customer(
                 name=name,
                 email=email,
-            )
+            )            
         except Exception as ex:
             app.log_exception(ex)
-            print(ex) 
+            print(ex)
+    participants = None
+    if category == 'Storage':
+        if cost_center in BII_COST_CENTERS:
+            participants = [app.config['STORAGE_SPONSOR_EMAIL_LOOKUP']['BII']]
+        # if cost_center in DS_COST_CENTERS:
+        #     participants = [app.config['STORAGE_SPONSOR_EMAIL_LOOKUP']['DS']]
+    # ticket_response = '{"issueKey":"RIV-1082"}'
     ticket_response = jira_service_handler.create_new_ticket(
         reporter=email,
+        participants = participants,
         project_name=project_ticket_route[0],
         request_type=project_ticket_route[1],
         components=components,
@@ -110,7 +120,7 @@ def _process_support_request(form_elements_dict, service_host, version):
 
     app.logger.info(ticket_response)
     print('Ticket Response: '+ str(ticket_response))
-    # ticket_response = '{"issueKey":"RIV-1082"}'
+    
     aws_service.update_dynamodb_jira_tracking(
         json.loads(ticket_response)['issueKey'],
         json.loads(ticket_response)['createdDate']['jira'],
@@ -119,30 +129,7 @@ def _process_support_request(form_elements_dict, service_host, version):
         summary_str
     )
 
-    # try:
-    #     dynamodbSession = boto3.Session(
-    #         aws_access_key_id='AKIAW5BKWSI5YOXZR2FO', 
-    #         aws_secret_access_key='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', 
-    #         region_name='us-east-1'
-    #     )
-    #     dynamodb = dynamodbSession.resource('dynamodb')
-    #     table = dynamodb.Table('jira-tracking')
-
-    #     response = table.put_item(
-    #         Item={
-    #             'key': json.loads(ticket_response)['issueKey'],
-    #             'submitted': json.loads(ticket_response)['createdDate']['jira'],
-    #             'uid': username,
-    #             'email': email,
-    #             'type': summary_str
-    #         }
-    #     )
-    #     print(json.dumps(response, indent=4, cls=DecimalEncoder))
-    # except Exception as ex:
-    #     app.log_exception(ex);
-    #     print(str(ex))
-
-    if (category == 'Deans Allocation'):
+    if category == 'Deans Allocation':
         email_service.send_hpc_allocation_confirm_email(
             from_email_address=form_elements_dict['email'],
             to_email_address=app.config['ALLOCATION_SPONSOR_EMAIL_LOOKUP'][form_elements_dict['sponsor']],
@@ -154,6 +141,19 @@ def _process_support_request(form_elements_dict, service_host, version):
 
         jira_service_handler.add_ticket_comment(json.loads(
             ticket_response)['issueKey'], 'Approval request sent to the sponsor for confirmation')
+    elif category == 'Storage':
+        if cost_center in BII_COST_CENTERS:
+            email_service.send_storage_request_confirm_email(
+                from_email_address=form_elements_dict['email'],
+                to_email_address=app.config['STORAGE_SPONSOR_EMAIL_LOOKUP']['BII'],
+                subject=summary_str,
+                ticket_id=json.loads(ticket_response)['issueKey'],
+                callback_host=service_host,
+                content_dict=form_elements_dict
+            ) 
+        elif cost_center in DS_COST_CENTERS:
+            #send just an ack email no approval needed
+            pass
 
     cc_email_addresses_list = None
     if ('financial-contact' in form_elements_dict
@@ -342,6 +342,76 @@ def confirm_hpc_allocation_request(token, version='v2'):
                 str(ex))
         )
 
+
+@app.route('/rest/<version>/confirm-storage-request/<token>/', methods=['GET', 'POST'])
+@app.route('/rest/confirm-storage-request/<token>/', methods=['GET', 'POST'])
+@limiter.limit("12 per hour")
+@limiter.limit("4 per minute")
+def confirm_storage_request(token, version='v2'):
+    try:
+        for salt_str in ALLOC_APPROVE_CONFIRM_TYPES:
+            sig_okay, ticket_id = URLSafeTimedSerializer(
+                app.config["MAIL_SECRET_KEY"]
+            ).loads_unsafe(token, salt=salt_str, max_age=1209600)
+            if (sig_okay):
+                if(salt_str == ALLOC_APPROVE_CONFIRM_TYPES[2] and request.environ['REQUEST_METHOD'] == 'GET'):
+                    return render_template(
+                        'confirm_explanation_storage.html',
+                        logo_url=RC_SMALL_LOGO_URL,
+                        confirmation_str='{} confirmation form'.format(
+                            salt_str),
+                        confirm_approve_url=request.base_url if 'localhost' in request.base_url else request.base_url.replace(
+                            'http', 'https'),
+                        show_condition="visibility: show;",
+                        confirm_str=salt_str,
+                        default_storage='',
+                    )
+                if(salt_str == ALLOC_APPROVE_CONFIRM_TYPES[1] and request.environ['REQUEST_METHOD'] == 'GET'):
+                    return render_template(
+                        'confirm_explanation_storage.html',
+                        logo_url=RC_SMALL_LOGO_URL,
+                        confirmation_str='{} confirmation form'.format(
+                            salt_str),
+                        confirm_approve_url=request.base_url if 'localhost' in request.base_url else request.base_url.replace(
+                            'http', 'https'),
+                        show_condition="visibility: hidden;",
+                        confirm_str=salt_str,
+                        default_storage=0,
+                    )
+                comment_list = [
+                    'Confirmation received from sponsor: ', salt_str.upper()]
+                if request.environ['REQUEST_METHOD'] == 'POST':
+                    if salt_str == ALLOC_APPROVE_CONFIRM_TYPES[2]:
+                        comment_list = comment_list + ['\n\nStorage approved by sponsor: ', request.form['storage-request-approved-by-dean'],
+                                                       '\n\nExplanation: ', request.form['deans-explanation']]
+                    elif salt_str == ALLOC_APPROVE_CONFIRM_TYPES[1]:
+                        comment_list = comment_list + \
+                            ['\n\nExplanation: ', request.form['deans-explanation']]
+
+                response = json.loads(JiraServiceHandler(
+                    app, version != "v1").add_ticket_comment(ticket_id, ''.join(comment_list)))
+                if ('errorMessage' in response
+                    and response['errorMessage'] is not None
+                        and response['errorMessage'] != ''):
+                    raise Exception(response['errorMessage'])
+                return render_template(
+                    'confirm_response_storage.html',
+                    logo_url=RC_SMALL_LOGO_URL,
+                    confirmation_str='Confirmation ({}) updated successfully. Thankyou'.format(
+                        salt_str)
+                )
+
+        raise Exception(
+            'The link for confirmation received has either expired or invalid. Please contact research computing')
+    except Exception as ex:
+        app.log_exception(ex)
+        print(ex)
+        return render_template(
+            'confirm_response_storage.html',
+            logo_url=RC_SMALL_LOGO_URL,
+            confirmation_str='Error submitting HPC Allocation approval confirmation: {}'.format(
+                str(ex))
+        )
 
 @app.route('/rest/konami/', methods=['POST'])
 @limiter.limit("6 per hour")

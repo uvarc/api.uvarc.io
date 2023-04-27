@@ -17,3 +17,5 @@ class DecimalEncoder(json.JSONEncoder):
 ALLOC_APPROVE_CONFIRM_TYPES = ['Approved', 'Denied', 'Approved in part']
 RC_SMALL_LOGO_URL = 'https://staging.rc.virginia.edu/images/logos/uva_rc_logo_full_340x129.png'
 RC_LARGE_LOGO_URL = 'https://staging.rc.virginia.edu/images/logos/uva_rc_logo_full_1000x380.png'
+BII_COST_CENTERS = ['CC0896','CC1524','CC1525','CC1526','CC1527','CC1528','CC1529']
+DS_COST_CENTERS = []
