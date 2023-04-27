@@ -12,9 +12,15 @@ Cost Center: {{ content_dict["cost-center"] }}
 Business Unit: {{ content_dict["business-unit"] }}
 Request Capacity: {{ content_dict["capacity"] }}
 Discipline: {{ content_dict["discipline"] }}
+Discipline Other: {{ content_dict["discipline-other"] }}
 Project Title: {{ content_dict["project-title"] }}
 Storage Choice: {{ content_dict["storage-choice"] }}
 Type Of Request: {{ content_dict["type-of-request"] }}
+Financial Contact: {{ content_dict["financial-contact"] }}
+Function: {{ content_dict["function"] }}
+Fund: {{ content_dict["fund"] }}
+Funding Number: {{ content_dict["funding-number"] }}
+Funding Type: {{ content_dict["funding-type"] }}
 
 Please place one of the following url in your browser to confirm your respomnse:
 Approve this request in full: {{ confirm_approve_url }}
