@@ -93,22 +93,16 @@ class JiraServiceHandler:
         except Exception as ex:
             print("Couldn't create customer {} in JIRA: {}".format(name, str(ex)))
 
-    def get_customer(self, name, email):
+    def get_customer(self, account_id):
         try:
             headers = {
                 "Content-Type": "application/json",
                 "X-ExperimentalApi": "opt-in"
             }
-            payload = json.dumps(
-                {
-                    "email": email,
-                    "fullName": name
-                }
-            )
+
             r = requests.get(
-                ''.join([self._connect_host_url, 'api/2/user?accountId=qm%3Aa75bda54-5373-4d0e-ad89-e747db3a3e8c%3A7220cbd2-3c35-40cb-8314-b6d1e8176afa']),
+                ''.join([self._connect_host_url, 'api/2/user?accountId='+account_id]),
                 headers=headers,
-                data=payload,
                 auth=self._auth
             )
             return r.text

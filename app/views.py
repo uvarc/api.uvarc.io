@@ -143,17 +143,19 @@ def _process_support_request(form_elements_dict, service_host, version):
             ticket_response)['issueKey'], 'Approval request sent to the sponsor for confirmation')
     elif category == 'Storage':
         if cost_center in BII_COST_CENTERS:
-            email_service.send_storage_request_confirm_email(
-                from_email_address=form_elements_dict['email'],
-                to_email_address=app.config['STORAGE_SPONSOR_EMAIL_LOOKUP']['BII'],
-                subject=summary_str,
-                ticket_id=json.loads(ticket_response)['issueKey'],
-                callback_host=service_host,
-                content_dict=form_elements_dict
-            ) 
-        elif cost_center in DS_COST_CENTERS:
-            #send just an ack email no approval needed
-            pass
+            customer = json.loads(jira_service_handler.get_customer(app.config['STORAGE_SPONSOR_EMAIL_LOOKUP']['BII']))
+            if 'emailAddress' in  customer:
+                to_email_address = customer['emailAddress']
+                email_service.send_storage_request_confirm_email(
+                    from_email_address=form_elements_dict['email'],
+                    to_email_address=to_email_address,
+                    subject=summary_str,
+                    ticket_id=json.loads(ticket_response)['issueKey'],
+                    callback_host=service_host,
+                    content_dict=form_elements_dict
+                )
+            else:
+                raise Exception(customer)
 
     cc_email_addresses_list = None
     if ('financial-contact' in form_elements_dict
