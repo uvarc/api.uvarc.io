@@ -25,8 +25,36 @@
 <p
   style="font-family: sans-serif; font-size: 14px; font-weight: bold; margin: 0; Margin-bottom: 15px;"
 >
-  The project information is as follows:
+The project information is as follows:
 </p>
+<br />
+<table border="0" cellpadding="0" cellspacing="0">
+  <tbody>
+    <tr>
+      <td>Cost Center: {{ content_dict["cost-center"] }}</td>
+    </tr>
+    <tr>
+      <td>
+        Business Unit: {{ content_dict["business-unit"] }}
+      </td>
+    </tr>
+    <tr>
+      <td>Request Capacity: {{ content_dict["capacity"] }}</td>
+    </tr>
+    <tr>
+      <td>Discipline: {{ content_dict["discipline"] }}</td>
+    </tr>
+    <tr>
+      <td>Project Title: {{ content_dict["project-title"] }}</td>
+    </tr>
+    <tr>
+      <td>Storage Choice: {{ content_dict["storage-choice"] }}</td>
+    </tr>
+    <tr>
+      <td>Type Of Request: {{ content_dict["type-of-request"] }}</td>
+    </tr>
+  </tbody>
+</table>
 <br />
 <table border="0" cellpadding="0" cellspacing="5">
   <tbody>

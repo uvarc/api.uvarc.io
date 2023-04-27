@@ -8,6 +8,13 @@ Department: {{ content_dict["department"] }}
 
 The project information is as follows:
 --------------------------------------
+Cost Center: {{ content_dict["cost-center"] }}
+Business Unit: {{ content_dict["business-unit"] }}
+Request Capacity: {{ content_dict["capacity"] }}
+Discipline: {{ content_dict["discipline"] }}
+Project Title: {{ content_dict["project-title"] }}
+Storage Choice: {{ content_dict["storage-choice"] }}
+Type Of Request: {{ content_dict["type-of-request"] }}
 
 Please place one of the following url in your browser to confirm your respomnse:
 Approve this request in full: {{ confirm_approve_url }}
