@@ -100,10 +100,10 @@ def _process_support_request(form_elements_dict, service_host, version):
             print(ex)
     participants = None
     if category == 'Storage':
-        if cost_center in BII_COST_CENTERS:
-            participants = [app.config['STORAGE_SPONSOR_EMAIL_LOOKUP']['BII']]
-        # if cost_center in DS_COST_CENTERS:
-        #     participants = [app.config['STORAGE_SPONSOR_EMAIL_LOOKUP']['DS']]
+        if cost_center in BII_COST_CENTERS and department.lower() != 'ds-data science':
+            participants = app.config['STORAGE_SPONSOR_EMAIL_LOOKUP']['BII']
+        if department.lower() == 'ds-data science':
+            participants = app.config['STORAGE_SPONSOR_EMAIL_LOOKUP']['DS']
     # ticket_response = '{"issueKey":"RIV-1082"}'
     ticket_response = jira_service_handler.create_new_ticket(
         reporter=email,
@@ -142,8 +142,8 @@ def _process_support_request(form_elements_dict, service_host, version):
         jira_service_handler.add_ticket_comment(json.loads(
             ticket_response)['issueKey'], 'Approval request sent to the sponsor for confirmation')
     elif category == 'Storage':
-        if cost_center in BII_COST_CENTERS:
-            customer = json.loads(jira_service_handler.get_customer(app.config['STORAGE_SPONSOR_EMAIL_LOOKUP']['BII']))
+        if cost_center in BII_COST_CENTERS and department.lower() != 'ds-data science':
+            customer = json.loads(jira_service_handler.get_customer(app.config['STORAGE_SPONSOR_EMAIL_LOOKUP']['BII'][0]))
             if 'emailAddress' in  customer:
                 to_email_address = customer['emailAddress']
                 email_service.send_storage_request_confirm_email(
