@@ -25,4 +25,4 @@ Funding Type: {{ content_dict["funding-type"] }}
 Please place one of the following url in your browser to confirm your respomnse:
 Approve this request in full: {{ confirm_approve_url }}
 Reject this request: {{ confirm_disapprove_url }}
-Approve this request in part: {{ confirm_part_approve_url }}
+

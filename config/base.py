@@ -123,7 +123,7 @@ if PRODUCTION:
         'other': 'vsh@virginia.edu'
     }
     STORAGE_SPONSOR_EMAIL_LOOKUP = {
-        'BII': '5dc086be7dcf390c61844167', #qm%3Aa75bda54-5373-4d0e-ad89-e747db3a3e8c%3A7220cbd2-3c35-40cb-8314-b6d1e8176afa
+        'BII': 'qm%3Aa75bda54-5373-4d0e-ad89-e747db3a3e8c%3A7220cbd2-3c35-40cb-8314-b6d1e8176afa',
         'DS': '5dcd9d408365670de7e906bf'
     }
     KONAMI_ENPOINT_DEFAULT_SENDER = 'nem2p@virginia.edu'
