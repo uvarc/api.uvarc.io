@@ -46,8 +46,10 @@ def _process_support_request(form_elements_dict, service_host, version):
     username = None
     department = ''
     school = ''
+    discipline = ''
+    discipline_other = ''
     format_attribs_order = ['name', 'email', 'uid',
-                            'department', 'school', 'category', 'description', 'cost-center']
+                            'department', 'school', 'discipline', 'discipline-other', 'category', 'description', 'cost-center']
     for attrib in format_attribs_order:
         if (attrib in submitted_attribs):
             if(attrib == 'category'):
@@ -64,9 +66,13 @@ def _process_support_request(form_elements_dict, service_host, version):
                     department = value
                 if attrib == 'school':
                     school = value
+                if attrib == 'discipline':
+                    discipline = value
+                if attrib == 'discipline-other':
+                    discipline_other = value
                 if attrib == 'cost-center':
                     cost_center = value
-            if attrib != 'department' and attrib != 'school':
+            if attrib != 'department' and attrib != 'school' and attrib != 'discipline' and attrib != 'discipline-other' :
                 desc_str = ''.join([desc_str, '{}: {}\n'.format(
                     str(attrib).strip().title(), value)])
                 desc_html_str = ''.join([desc_html_str, '{}: {} \n\r'.format(
@@ -115,6 +121,7 @@ def _process_support_request(form_elements_dict, service_host, version):
         desc=desc_str,
         department=department,
         school=school,
+        discipline=discipline if discipline != 'other' else discipline_other,
         is_rc_project=is_rc_project
     )
 

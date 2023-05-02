@@ -121,6 +121,7 @@ class JiraServiceHandler:
         desc=None,
         department='',
         school='',
+        discipline='',
         is_rc_project=False
     ):
         if(reporter is None):
@@ -144,6 +145,8 @@ class JiraServiceHandler:
         if is_rc_project and (department!='' or school!=''):
             payload["requestFieldValues"]["customfield_10241"] = department
             payload["requestFieldValues"]["customfield_10242"] = school
+        if is_rc_project  and discipline!='':
+            payload["requestFieldValues"]["customfield_10281"] = discipline 
 
 
         if components:
