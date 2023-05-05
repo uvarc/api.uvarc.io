@@ -101,7 +101,7 @@ if DEVELOPMENT:
     ALLOCATION_SPONSOR_EMAIL_LOOKUP = {
         'cas': 'rkc7h@virginia.edu',
         'seas': 'rkc7h@virginia.edu',
-        'dsi': 'rkc7h@virginia.edu',
+        'sds': 'rkc7h@virginia.edu',
         'hs': 'rkc7h@virginia.edu',
         'other': 'rkc7h@virginia.edu'
     }
@@ -118,9 +118,9 @@ if PRODUCTION:
     ALLOCATION_SPONSOR_EMAIL_LOOKUP = {
         'cas': 'lg8b@virginia.edu',
         'seas': 'wbk3a@virginia.edu',
-        'dsi': 'vsh@virginia.edu',
+        'sds': 'vsh@virginia.edu',
         'hs': 'jcm6t@virginia.edu',
-        'other': 'vsh@virginia.edu'
+        'other': 'nem2p@virginia.edu,rkc7h@virginia.edu'
     }
     STORAGE_SPONSOR_EMAIL_LOOKUP = {
         'BII': ['qm:a75bda54-5373-4d0e-ad89-e747db3a3e8c%3A7220cbd2-3c35-40cb-8314-b6d1e8176afa'],
