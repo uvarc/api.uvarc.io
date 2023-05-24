@@ -48,6 +48,7 @@ def _process_support_request(form_elements_dict, service_host, version):
     school = ''
     discipline = ''
     discipline_other = ''
+    cost_center = ''
     format_attribs_order = ['name', 'email', 'uid',
                             'department', 'school', 'discipline', 'discipline-other', 'category', 'description', 'cost-center']
     for attrib in format_attribs_order:
