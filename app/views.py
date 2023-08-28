@@ -106,15 +106,16 @@ def _process_support_request(form_elements_dict, service_host, version):
             app.log_exception(ex)
             print(ex)
     participants = None
-    if category == 'Storage':
-        if cost_center in BII_COST_CENTERS and department.lower() != 'ds-data science':
+    if department.lower() == 'ds-data science' or  department.lower() == 'data science':
+        participants = app.config['STORAGE_SPONSOR_EMAIL_LOOKUP']['DS']
+    elif category == 'Storage':
+        if cost_center in BII_COST_CENTERS and (department.lower() != 'ds-data science' and department.lower() != 'data science'):
             participants = app.config['STORAGE_SPONSOR_EMAIL_LOOKUP']['BII']
-        if department.lower() == 'ds-data science':
-            participants = app.config['STORAGE_SPONSOR_EMAIL_LOOKUP']['DS']
+
     # ticket_response = '{"issueKey":"RIV-1082"}'
     ticket_response = jira_service_handler.create_new_ticket(
         reporter=email,
-        participants = participants,
+        participants=participants,
         project_name=project_ticket_route[0],
         request_type=project_ticket_route[1],
         components=components,
@@ -196,9 +197,9 @@ def general_support_request(version='v2'):
     try:
         f = furl.furl(request.referrer)
         f.remove(['ticket_id', 'message', 'status'])
+        print("Testing: "+str(request.host_url))
         response = json.loads(_process_support_request(
-            request.form, request.host_url if 'localhost' in request.host_url else request.host_url.replace(
-                'http', 'https').replace('https//','https://'), version))
+            request.form, request.host_url, version))
         response_url = "http://localhost:1313/thank-you/?" if 'localhost' in request.host_url else "https://www.rc.virginia.edu/thank-you/?"
         if ('REQUEST_CLIENT' in request.form
                 and request.form['REQUEST_CLIENT'] == 'ITHRIV'):
@@ -265,9 +266,9 @@ def hpc_allocation_request(version='v2'):
         request_form = dict(request.form.items())
         request_form['category'] = "Rivanna HPC"
 
+        print("Testing: "+str(request.host_url))
         response = json.loads(_process_support_request(
-            request_form, request.host_url if 'localhost' in request.host_url else request.host_url.replace(
-                'http', 'https').replace('https//','https://'), version))
+            request_form, request.host_url, version))
 
         return redirect(
             ''.join([f.url, '&status=', '200 OK', '&', 'message=',

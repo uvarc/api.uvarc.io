@@ -80,7 +80,7 @@ class EmailService():
                                           subject, ticket_id,
                                           callback_host, content_dict):
         tracking_code = self.tracking_code()
-        if(callback_host.endswith('/')):
+        if (callback_host.endswith('/')):
             callback_host = callback_host[:-1]
         confirm_approve_url = ''.join(
             [
@@ -91,6 +91,7 @@ class EmailService():
                         ticket_id, salt=ALLOC_APPROVE_CONFIRM_TYPES[0]))
             ]
         )
+        print("TEST APPROVAL URL: "+confirm_approve_url)
         confirm_disapprove_url = ''.join(
             [
                 callback_host,
