@@ -123,10 +123,8 @@ if PRODUCTION:
         'other': 'nem2p@virginia.edu,rkc7h@virginia.edu'
     }
     STORAGE_SPONSOR_EMAIL_LOOKUP = {
-        'BII': ['5dc086be7dcf390c61844167'],
-        'DS': ['5dc086be7dcf390c61844167', '5dcd9d408365670de7e906bf']
-        # 'BII': ['qm:a75bda54-5373-4d0e-ad89-e747db3a3e8c:9ecee7cf-1845-4458-b465-104625511720'],
-        # 'DS': ['qm:a75bda54-5373-4d0e-ad89-e747db3a3e8c:90fdaa72-1fd7-4fd5-a5d5-5d213744966f','qm:a75bda54-5373-4d0e-ad89-e747db3a3e8c:6e343f8e-15d2-42f2-b045-44e949b4fef6','qm:a75bda54-5373-4d0e-ad89-e747db3a3e8c:77e2eaba-3e0a-472e-8190-61ff8b01ccf6']
+        'BII': ['qm:a75bda54-5373-4d0e-ad89-e747db3a3e8c:9ecee7cf-1845-4458-b465-104625511720'],
+        'DS': ['qm:a75bda54-5373-4d0e-ad89-e747db3a3e8c:90fdaa72-1fd7-4fd5-a5d5-5d213744966f','qm:a75bda54-5373-4d0e-ad89-e747db3a3e8c:6e343f8e-15d2-42f2-b045-44e949b4fef6','qm:a75bda54-5373-4d0e-ad89-e747db3a3e8c:77e2eaba-3e0a-472e-8190-61ff8b01ccf6']
     }
     KONAMI_ENPOINT_DEFAULT_SENDER = 'nem2p@virginia.edu'
     KONAMI_ENPOINT_DEFAULT_RECEIVER = 'nem2p@virginia.edu'
