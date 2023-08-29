@@ -124,8 +124,7 @@ if PRODUCTION:
     }
     STORAGE_SPONSOR_EMAIL_LOOKUP = {
         'BII': ['qm:a75bda54-5373-4d0e-ad89-e747db3a3e8c:9ecee7cf-1845-4458-b465-104625511720'],
-        'DS': ['qm:a75bda54-5373-4d0e-ad89-e747db3a3e8c:fbef504d-a04f-421e-a38f-865e819df4fa','qm:a75bda54-5373-4d0e-ad89-e747db3a3e8c:90fdaa72-1fd7-4fd5-a5d5-5d213744966f','qm:a75bda54-5373-4d0e-ad89-e747db3a3e8c:6e343f8e-15d2-42f2-b045-44e949b4fef6','qm:a75bda54-5373-4d0e-ad89-e747db3a3e8c:77e2eaba-3e0a-472e-8190-61ff8b01ccf6']
+        'DS': ['qm:a75bda54-5373-4d0e-ad89-e747db3a3e8c:fbef504d-a04f-421e-a38f-865e819df4fa']
     }
     KONAMI_ENPOINT_DEFAULT_SENDER = 'nem2p@virginia.edu'
     KONAMI_ENPOINT_DEFAULT_RECEIVER = 'nem2p@virginia.edu'
-

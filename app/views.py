@@ -96,6 +96,11 @@ def _process_support_request(form_elements_dict, service_host, version):
     else:
         summary_str = '{} Request'.format(category)
 
+    # ret = jira_service_handler.create_new_customer(
+    #             name='SDS IT',
+    #             email='sds_it@virginia.edu',
+    #         )
+    
     if (name is not None and name != '' and email is not None and email != ''):
         try:
             jira_service_handler.create_new_customer(
@@ -106,10 +111,10 @@ def _process_support_request(form_elements_dict, service_host, version):
             app.log_exception(ex)
             print(ex)
     participants = None
-    if department.lower() == 'ds-data science' or  department.lower() == 'data science':
+    if department.lower().startswith('ds-') or  department.lower() == 'data science':
         participants = app.config['STORAGE_SPONSOR_EMAIL_LOOKUP']['DS']
     elif category == 'Storage':
-        if cost_center in BII_COST_CENTERS and (department.lower() != 'ds-data science' and department.lower() != 'data science'):
+        if cost_center in BII_COST_CENTERS and ((not department.lower().startswith('ds-')) and department.lower() != 'data science'):
             participants = app.config['STORAGE_SPONSOR_EMAIL_LOOKUP']['BII']
 
     # ticket_response = '{"issueKey":"RIV-1082"}'
@@ -175,7 +180,7 @@ def _process_support_request(form_elements_dict, service_host, version):
          form_elements_dict.get('ptao2') is not None and form_elements_dict['ptao2'].lstrip() != '' and
          form_elements_dict.get('ptao3') is not None and form_elements_dict['ptao3'].lstrip() != '' and
          form_elements_dict.get('ptao4') is not None and form_elements_dict['ptao4'].lstrip() != '') or 
-         (form_elements_dict.get('ptao') is not None and form_elements_dict['ptao'].lstrip() != '')):
+            (form_elements_dict.get('ptao') is not None and form_elements_dict['ptao'].lstrip() != '')):
         pass
         # email_service.send_purchase_ack_email(
         #     from_email_address='hpc-support@virginia.edu',
