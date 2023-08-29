@@ -111,10 +111,10 @@ def _process_support_request(form_elements_dict, service_host, version):
             app.log_exception(ex)
             print(ex)
     participants = None
-    if department.lower().startswith('ds-') or  department.lower() == 'data science':
+    if department.lower().startswith('ds-') or 'data science' in department.lower():
         participants = app.config['STORAGE_SPONSOR_EMAIL_LOOKUP']['DS']
     elif category == 'Storage':
-        if cost_center in BII_COST_CENTERS and ((not department.lower().startswith('ds-')) and department.lower() != 'data science'):
+        if cost_center in BII_COST_CENTERS and ((not department.lower().startswith('ds-')) and 'data science' not in department.lower()):
             participants = app.config['STORAGE_SPONSOR_EMAIL_LOOKUP']['BII']
 
     # ticket_response = '{"issueKey":"RIV-1082"}'
