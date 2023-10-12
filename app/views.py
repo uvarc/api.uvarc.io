@@ -97,10 +97,10 @@ def _process_support_request(form_elements_dict, service_host, version):
         summary_str = '{} Request'.format(category)
 
     # ret = jira_service_handler.create_new_customer(
-    #             name='SDS IT',
-    #             email='sds_it@virginia.edu',
+    #             name='SDS RC',
+    #             email='SDS_RC@virginia.edu',
     #         )
-    
+
     if (name is not None and name != '' and email is not None and email != ''):
         try:
             jira_service_handler.create_new_customer(
