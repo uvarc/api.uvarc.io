@@ -202,7 +202,6 @@ def general_support_request(version='v2'):
     try:
         f = furl.furl(request.referrer)
         f.remove(['ticket_id', 'message', 'status'])
-        print("Testing: "+str(request.host_url))
         response = json.loads(_process_support_request(
             request.form, request.host_url, version))
         response_url = "http://localhost:1313/thank-you/?" if 'localhost' in request.host_url else "https://www.rc.virginia.edu/thank-you/?"
