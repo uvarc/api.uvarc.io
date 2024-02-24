@@ -109,7 +109,6 @@ class JiraServiceHandler:
         except Exception as ex:
             print("Couldn't create customer {} in JIRA: {}".format(name, str(ex)))
 
-
     def create_new_ticket(
         self,
         reporter=None,
@@ -124,7 +123,7 @@ class JiraServiceHandler:
         discipline='',
         is_rc_project=False
     ):
-        if(reporter is None):
+        if reporter is None:
             reporter = self._default_reporter
         # if(participants is None):
         #     participants = [reporter]
@@ -143,11 +142,10 @@ class JiraServiceHandler:
         }
 
         if is_rc_project and (department!='' or school!=''):
-            payload["requestFieldValues"]["customfield_10241"] = department
-            payload["requestFieldValues"]["customfield_10242"] = school
-        if is_rc_project  and discipline!='':
-            payload["requestFieldValues"]["customfield_10281"] = discipline 
-
+            payload["requestFieldValues"]["customfield_13176"] = department
+            payload["requestFieldValues"]["customfield_13196"] = school
+        if is_rc_project and discipline != '':
+            payload["requestFieldValues"]["customfield_13190"] = discipline
 
         if components:
             payload["requestFieldValues"]["components"] = []

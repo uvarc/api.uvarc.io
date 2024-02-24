@@ -119,7 +119,7 @@ def _process_support_request(form_elements_dict, service_host, version):
 
     # ticket_response = '{"issueKey":"RIV-1082"}'
     ticket_response = jira_service_handler.create_new_ticket(
-        reporter=email,
+        reporter=email if '@' not in email else email.split('@')[0],
         participants=participants,
         project_name=project_ticket_route[0],
         request_type=project_ticket_route[1],
@@ -133,7 +133,7 @@ def _process_support_request(form_elements_dict, service_host, version):
     )
 
     app.logger.info(ticket_response)
-    print('Ticket Response: '+ str(ticket_response))
+    print('Ticket Response: ' + str(ticket_response))
     
     aws_service.update_dynamodb_jira_tracking(
         json.loads(ticket_response)['issueKey'],
@@ -158,7 +158,7 @@ def _process_support_request(form_elements_dict, service_host, version):
     elif category == 'Storage':
         if cost_center in BII_COST_CENTERS and department.lower() != 'ds-data science':
             customer = json.loads(jira_service_handler.get_customer(app.config['STORAGE_SPONSOR_EMAIL_LOOKUP']['BII'][0]))
-            if 'emailAddress' in  customer:
+            if 'emailAddress' in customer:
                 to_email_address = customer['emailAddress']
                 email_service.send_storage_request_confirm_email(
                     from_email_address=form_elements_dict['email'],
