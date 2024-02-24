@@ -111,7 +111,7 @@ def _process_support_request(form_elements_dict, service_host, version):
             app.log_exception(ex)
             print(ex)
     participants = None
-    if department.lower().startswith('ds-') or 'data science' in department.lower():
+    if department.lower().startswith('ds-') or 'data science' in department.lower() or 'data science' in discipline.lower():
         participants = app.config['STORAGE_SPONSOR_EMAIL_LOOKUP']['DS']
     elif category == 'Storage':
         if cost_center in BII_COST_CENTERS and ((not department.lower().startswith('ds-')) and 'data science' not in department.lower()):
