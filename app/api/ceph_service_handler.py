@@ -21,9 +21,9 @@ def create_bucket(access_key, secret_key, bucket_name):
 
 def main():
     args = sys.argv[1:]
-    print ("S3 access_key="+args[0])
-    print ("S3 secret_key="+args[1])
-    print ("Create Bucket Name="+args[1])
+    print("S3 access_key="+args[0])
+    print("S3 secret_key="+args[1])
+    print("Create Bucket Name="+args[1])
     create_bucket(args[0], args[1], args[2])
 
 
