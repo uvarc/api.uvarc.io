@@ -13,7 +13,8 @@ def create_bucket(access_key, secret_key, bucket_name):
     s3client = session.client(
         's3',
         endpoint_url='https://machi-nas-s.hpc.virginia.edu:7480',
-        config=Config()
+        config=Config(),
+        verify=False
     )
     # create [my-new-bucket]
     bucket = s3client.create_bucket(Bucket=bucket_name)
