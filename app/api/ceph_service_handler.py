@@ -1,6 +1,8 @@
 import sys
 import boto3
 from botocore.config import Config
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 def create_bucket(access_key, secret_key, bucket_name):
@@ -18,6 +20,9 @@ def create_bucket(access_key, secret_key, bucket_name):
     )
     # create [my-new-bucket]
     bucket = s3client.create_bucket(Bucket=bucket_name)
+    print(bucket)
+    buckets = s3client.list_buckets()
+    print(buckets)
 
 
 def main():
