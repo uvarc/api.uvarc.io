@@ -80,7 +80,6 @@ mccabe==0.7.0
 mistune==3.0.2
 mongoengine==0.24.2
 more-itertools==8.14.0
-numpy==2.1.2
 oauthlib==3.2.0
 ordered-set==4.1.0
 orderedmultidict==1.0.1
@@ -126,7 +125,7 @@ s3transfer==0.6.0
 Scrapy==2.6.2
 service-identity==21.1.0
 setuptools==75.1.0
-simplejson
+simplejson==3.19.3
 six==1.16.0
 tldextract==3.3.1
 toml==0.10.2
