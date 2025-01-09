@@ -1,4 +1,4 @@
-FROM quay.io/accord/docker-python-image:latest
+FROM python:3.12.6
 LABEL maintainer="rkc7h@virginia.edu"
 
 ENV NON_ROOT_USER=non_root_user
