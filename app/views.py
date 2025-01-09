@@ -3,11 +3,12 @@ from app.api.jira_service_handler import JiraServiceHandler
 from app.api import ALLOC_APPROVE_CONFIRM_TYPES, RC_SMALL_LOGO_URL, BII_COST_CENTERS, DS_COST_CENTERS, DecimalEncoder
 from app import app, limiter, email_service, aws_service
 from itsdangerous import URLSafeTimedSerializer
-import boto3
 import furl
-from flask import jsonify, make_response, request, redirect, render_template
-import json
+from flask import json, jsonify, make_response, request, redirect, render_template
+from boto3.dynamodb.conditions import Key, Attr
 import sys
+import requests
+import datetime
 
 
 def unauthorized():
@@ -457,3 +458,315 @@ def update_konami_discovery():
                         str(ex))
             }
         ))
+
+
+def sort_list(items):
+    return items['partition']
+
+
+def sort_system(items):
+    return items['sort']
+
+# def unauthorized():
+#     return make_response(jsonify(
+#       {"status": "error",
+#       "message": "unauthorized"}
+#     ), 401)
+
+
+@app.route('/', methods=['GET'])
+def index():
+    return make_response(jsonify(
+      {'status': '200 OK',
+      'message': 'Please make a resource request. Options are /status/rivanna or /status/available'}
+    ), 200)
+
+
+@app.route('/hhc', methods=['POST'])
+def hhc():
+    return make_response(jsonify(
+        {
+            'status': '200 OK',
+            'response_type': 'in_channel',
+            'text': 'hey remind users about UVA HHC',
+            'request': 'data'
+        }
+    ), 200)
+
+
+@app.route('/status', methods=['GET'])
+def status():
+    return make_response(jsonify(
+        {
+            'status': '200 OK',
+            'command': 'this is so easy' 
+        }
+    ), 200)
+
+
+@app.route('/status/rivanna', methods=['GET'])
+def rivanna_status():
+    table = aws_service.get_dynamodb_resource().Table('rivannaq')
+    queue = []
+    std = table.scan()
+    for i in std[u'Items']:
+        queue.append(i)
+    # queue.sort(key=sort_list, reverse=True)
+    queue.sort(key=sort_system)
+    return make_response(jsonify(queue), 200)
+
+
+@app.route('/badge/<system>', methods=['GET'])
+def badge_status(system):
+    table = aws_service.get_dynamodb_resource().Table('status')
+    state = []
+    stat = table.scan()
+    for j in stat[u'Items']:
+        state.append(j)
+    state.sort(key=sort_system)
+    return make_response(jsonify(state), 200)
+
+
+@app.route('/status/available', methods=['GET','POST'])
+def available_status():
+    table = aws_service.get_dynamodb_resource().Table('status')
+
+    master_token = 'ftxBBFb3XqQDDzPNIzBlR9VZ'
+    if request.method == 'GET':
+        state = []
+        stat = table.scan()
+        for j in stat[u'Items']:
+            state.append(j)
+        state.sort(key=sort_system)
+        return make_response(jsonify(state), 200)
+    if request.method == 'POST':
+        reqt = request.json
+        s_token = reqt['token']
+        if (s_token != master_token):
+            return make_response(jsonify(
+                {
+                    'reply': '403 Forbidden: Invalid Token',
+                    'status': 'disallowed'
+                }
+            ), 403)
+            sys.exit(1)
+        s_system = reqt['system']
+        s_state = reqt['state']
+        s_message = ""
+        s_color = ""
+        s_image = '/images/status/green.png'
+        if (s_state == 0):
+            s_image = '/images/status/green.png'
+            s_message = 'No issues'
+            s_color = '5cb85c'
+        elif (s_state == 1):
+            s_image = '/images/status/yellow.png'
+            s_message = 'Incident'
+            s_color = 'ffff00'
+        elif (s_state == 2):
+            s_image = '/images/status/red.png'
+            s_message = 'Outage'
+            s_color = 'red'
+        elif (s_state == 3):
+            s_image = '/images/status/blue.png'
+            s_message = 'Maintenance'
+            s_color = 'blue'
+        response = table.update_item(
+            Key={'system': s_system},
+            UpdateExpression="set statez = :r, image = :i, message = :m, color = :c",
+            ExpressionAttributeValues={
+                ':r': s_state,
+                ':i': s_image,
+                ':m': s_message,
+                ':c': s_color
+            },
+        )
+        # resp_code = response.ResponseMetadata.HTTPStatusCode
+        return make_response(jsonify(
+                {
+                    'reply': '200 OK. Status Updated',
+                    'system': s_system,
+                    'image': s_image,
+                    'status': s_state
+                }
+            ), 200)
+
+
+# Update standard rc.virginia.edu website status
+@app.route('/status/messages', methods=['GET','POST'])
+def status_messages():
+    table = aws_service.get_dynamodb_resource().Table('status-messages')
+    master_token = 'ftxBBFb3XqQDDzPNIzBlR9VZ'
+    if request.method == 'GET':
+        messages = []
+        msgs = table.scan()
+        for j in msgs[u'Items']:
+            messages.append(j)
+        return make_response(jsonify(messages), 200)
+    if request.method == 'POST':
+        reqt = request.json
+        s_token = reqt['token']
+        if (s_token != master_token):
+            return make_response(jsonify(
+                {
+                    'reply': '403 Forbidden: Invalid Token',
+                    'status': 'disallowed' 
+                }
+            ), 403)
+            sys.exit(1)
+        s_message = "message"
+        s_body = reqt['body']
+        now = datetime.datetime.now()
+        rightnow = now.strftime("%Y-%m-%d %H:%M:%S")
+        body = rightnow + ' ' + s_body
+        response = table.update_item(
+            Key={'message': s_message},
+            UpdateExpression="set body = :b",
+            ExpressionAttributeValues={
+                ':b': body,
+            },
+        )
+        return make_response(jsonify(
+            {
+                'reply': '200 OK. Status Updated',
+                'method': "update-message",
+                'body': s_body
+            }
+        ), 200)
+
+
+# Update ACCORD status on accord.uvarc.io
+@app.route('/accord/messages', methods=['GET','POST'])
+def accord_messages():
+    table = aws_service.get_dynamodb_resource().Table('accord-messages')
+    master_token = 'ftxBBFb3XqQDDzPNIzBlR9VZ'
+    if request.method == 'GET':
+        messages = []
+        msgs = table.scan()
+        for j in msgs[u'Items']:
+            messages.append(j)
+        return make_response(jsonify(messages), 200)
+    if request.method == 'POST':
+        reqt = request.json
+        s_token = reqt['token']
+        if (s_token != master_token):
+            return make_response(jsonify(
+                {
+                    'reply': '403 Forbidden: Invalid Token',
+                    'status': 'disallowed'
+                }
+            ), 403)
+            sys.exit(1)
+        s_message = "message"
+        s_body = reqt['body']
+        now = datetime.datetime.now()
+        rightnow = now.strftime("%Y-%m-%d %H:%M:%S")
+        body = rightnow + ' ' + s_body
+        response = table.update_item(
+            Key={'message': s_message},
+            UpdateExpression="set body = :b",
+            ExpressionAttributeValues={
+                ':b': body,
+            },
+        )
+        return make_response(jsonify(
+            {
+                'reply': '200 OK. Status Updated',
+                'method': "update-message",
+                'body': s_body
+            }
+        ), 200)
+
+
+@app.route('/dbs', methods=['POST'])
+def manage_dbs():
+    # table = dynamodb.Table('dbservices')
+    master_token = 'ftxBBFb3XqQDDzPNIzBlR9VZ'
+    if request.method == 'POST':
+        reqt = request.form
+        text = request.form['text']
+        user = request.form['user_name']
+        response_url = request.form['response_url']
+        message = {"text": "Got your request!"}
+        reply = requests.post(response_url, data=message, headers={"Content-type": "application/json"})
+        # reqt = request.json
+        # s_token = reqt['token']
+        # if (s_token != master_token):
+        #   return make_response(jsonify(
+        #     {'reply': '403 Forbidden: Invalid Token',
+        #      'status': 'disallowed' }
+        #   ), 403)
+        #   sys.exit(1)
+        # s_message = "message"
+        # s_body = reqt['body']
+        # now = datetime.datetime.now()
+        # rightnow = now.strftime("%Y-%m-%d %H:%M:%S")
+        # body = rightnow + ' ' + s_body
+        # response = table.update_item(
+        #   Key={'message': s_message},
+        #   UpdateExpression="set body = :b",
+        #   ExpressionAttributeValues={
+        #     ':b': body,
+        #   },
+        #  )
+        print(reqt)
+        return make_response(jsonify(
+            {
+                'reply': '200 OK',
+                'text': text, 'user': user,
+                'response_url': response_url 
+            }
+        ), 200)
+
+    """
+    team_domain = reqt['team_domain']
+    user_name = reqt['user_name']
+    command = reqt['command']
+    text = reqt['text']
+    response_url = reqt['response_url']
+
+    'token': token,
+    'team_domain': team_domain,
+    'user_name': user_name,
+    'command': command,
+    'text': text,
+    'response_url': response_url }
+    token=ftxBBFb3XqQDDzPNIzBlR9VZ
+    team_id=T0001
+    team_domain=example
+    channel_id=C2147483705
+    channel_name=test
+    user_id=U2147483697
+    user_name=Steve
+    command=/weather
+    text=94070
+    response_url=https://hooks.slack.com/commands/1234/5678
+    """
+
+
+@app.route('/status/full', methods=['GET'])
+def full_status():
+    table = aws_service.get_dynamodb_resource().Table('status')
+    status = []
+    riv = Key('system').eq('rivanna')
+    ivy = Key('system').eq('ivy')
+    sky = Key('system').eq('skyline')
+    dco = Key('system').eq('dcos')
+    val = Key('system').eq('value')
+    pro = Key('system').eq('project')
+    glo = Key('system').eq('globus')
+    stat = table.scan(FilterExpression=riv)
+    for j in stat[u'Items']:
+        status.append({"system": "rivanna", "statez": j['statez']})
+    # status.sort(key=sort_system)
+    return make_response(jsonify(status), 200)
+
+
+@app.route('/support', methods=['POST'])
+def support():
+    return make_response(jsonify(
+        {
+            'status': '200 OK',
+            'message': 'make a resource request'
+        }
+    ), 200)
