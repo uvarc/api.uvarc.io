@@ -114,6 +114,30 @@ if DEVELOPMENT:
         'BII': ['rkc7h'],
         'DS': ['rkc7h', 'rkc7h']
     }
+    
+    JIRA_PROJECT_INFO_LOOKUP = {
+        JIRA_PROJECTS[0]: 41,
+        JIRA_PROJECTS[1]: 38,
+        JIRA_PROJECTS[2]: 39,
+        JIRA_PROJECTS[3]: 43,
+        JIRA_PROJECTS[4]: 12,
+        JIRA_PROJECTS[5]: 33,
+    }
+
+    JIRA_PROJECT_REQUEST_TYPE_LOOKUP = {
+        JIRA_PROJECT_REQUEST_TYPES[0]: 303,
+        JIRA_PROJECT_REQUEST_TYPES[1]: 274,
+        JIRA_PROJECT_REQUEST_TYPES[2]: 279,
+        JIRA_PROJECT_REQUEST_TYPES[3]: 311,
+        JIRA_PROJECT_REQUEST_TYPES[4]: 106,
+        JIRA_PROJECT_REQUEST_TYPES[5]: 251,
+        JIRA_PROJECT_REQUEST_TYPES[6]: 278,
+    }
+    STANDARD_STORAGE_REQUEST_INFO_TABLE = 'jira_standard_storage_requests__dev'
+    PROJECT_STORAGE_REQUEST_INFO_TABLE = 'jira_project_storage_requests_info_dev'
+    PAID_SU_REQUESTS_INFO_TABLE = 'jira_paid_su_requests_info_dev'
+
+    CUSTOMFIELD_VALUES = ('customfield_13076', 'customfield_13096', 'customfield_13090')
 
     KONAMI_ENPOINT_DEFAULT_SENDER = 'rkc7h@virginia.edu'
     KONAMI_ENPOINT_DEFAULT_RECEIVER = 'rkc7h@virginia.edu'
@@ -131,5 +155,30 @@ if PRODUCTION:
         'BII': ['bii_rc_billing'],
         'DS': ['sds_rc']
     }
+    
+    JIRA_PROJECT_INFO_LOOKUP = {
+        JIRA_PROJECTS[0]: 51,
+        JIRA_PROJECTS[1]: 48,
+        JIRA_PROJECTS[2]: 49,
+        JIRA_PROJECTS[3]: 36,
+        JIRA_PROJECTS[4]: 12,
+        JIRA_PROJECTS[5]: 47,
+    }
+
+    JIRA_PROJECT_REQUEST_TYPE_LOOKUP = {
+        JIRA_PROJECT_REQUEST_TYPES[0]: 413,
+        JIRA_PROJECT_REQUEST_TYPES[1]: 397,
+        JIRA_PROJECT_REQUEST_TYPES[2]: 402,
+        JIRA_PROJECT_REQUEST_TYPES[3]: 291,
+        JIRA_PROJECT_REQUEST_TYPES[4]: 106,
+        JIRA_PROJECT_REQUEST_TYPES[5]: 387,
+        JIRA_PROJECT_REQUEST_TYPES[6]: 401,
+    }
+    CUSTOMFIELD_VALUES = ('customfield_13176', 'customfield_13196', 'customfield_13190')
+    
+    STANDARD_STORAGE_REQUEST_INFO_TABLE = 'jira_standard_storage_requests_info'
+    PROJECT_STORAGE_REQUEST_INFO_TABLE = 'jira_project_storage_requests_info'
+    PAID_SU_REQUESTS_INFO_TABLE = 'jira_paid_su_requests_info'
+    
     KONAMI_ENPOINT_DEFAULT_SENDER = 'nem2p@virginia.edu'
     KONAMI_ENPOINT_DEFAULT_RECEIVER = 'nem2p@virginia.edu'

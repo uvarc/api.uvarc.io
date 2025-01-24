@@ -26,8 +26,8 @@ def _process_support_request(form_elements_dict, service_host, version):
 
     request_title = form_elements_dict.get('request_title')
     components = None
-    if('request-title' in form_elements_dict):
-        request_title = form_elements_dict['request-title']
+    if('request_title' in form_elements_dict):
+        request_title = form_elements_dict['request_title']
     is_rc_project = False
     if "JIRA_PROJECT_TICKET_ROUTE" in form_elements_dict:
         project_ticket_route = tuple(form_elements_dict.get(
@@ -39,6 +39,12 @@ def _process_support_request(form_elements_dict, service_host, version):
         project_ticket_route =\
             app.config['JIRA_CATEGORY_PROJECT_ROUTE_DICT'][
                 category.strip().title()]
+            
+    if ('allocation_type' in form_elements_dict):
+        allocation_type = form_elements_dict['allocation_type']
+    if ('storage-choice' in form_elements_dict):
+        storage_choice = form_elements_dict['storage-choice']
+
     submitted_attribs = list(form_elements_dict)
     desc_str = ''
     desc_html_str = ''
@@ -54,15 +60,15 @@ def _process_support_request(form_elements_dict, service_host, version):
                             'department', 'school', 'discipline', 'discipline-other', 'category', 'description', 'cost-center']
     for attrib in format_attribs_order:
         if (attrib in submitted_attribs):
-            if(attrib == 'category'):
+            if (attrib == 'category'):
                 value = category
             else:
                 value = form_elements_dict[attrib]
-                if(attrib == 'name'):
+                if (attrib == 'name'):
                     name = value
-                if(attrib == 'email'):
+                if (attrib == 'email'):
                     email = value
-                if(attrib == 'uid'):
+                if (attrib == 'username'):
                     username = value
                 if attrib == 'department':
                     department = value
@@ -87,6 +93,15 @@ def _process_support_request(form_elements_dict, service_host, version):
         'REQUEST_CLIENT'
     ]
     submitted_attribs = list(set(submitted_attribs) - set(drop_attribs))
+    
+    if (category == 'Rivanna HPC' or category == 'Storage'):
+        special_fields = [
+          'company', 'business_unit', 'cost_center', 'fund', 'gift', 
+          'grant', 'designated', 'project', 'program', 'function', 
+          'activity', 'assignee', 'owner_name', 'owner_uid', 
+          'allocation_name', 'group_name', 'project_name']
+        submitted_attribs = list(set(submitted_attribs) - set(special_fields))
+    
     for attrib in sorted(submitted_attribs):
         desc_str = ''.join([desc_str, '{}: {}\n'.format(
             str(attrib).strip().title(), form_elements_dict[attrib])])
@@ -97,6 +112,9 @@ def _process_support_request(form_elements_dict, service_host, version):
     else:
         summary_str = '{} Request'.format(category)
 
+    #if (allocation_type == "Purchase Service Units"):
+    #    reDefineattributes(form_elements_dict, desc_str)
+    
     # ret = jira_service_handler.create_new_customer(
     #             name='SDS RC',
     #             email='SDS_RC@virginia.edu',
@@ -135,14 +153,27 @@ def _process_support_request(form_elements_dict, service_host, version):
 
     app.logger.info(ticket_response)
     print('Ticket Response: ' + str(ticket_response))
-    
-    aws_service.update_dynamodb_jira_tracking(
-        json.loads(ticket_response)['issueKey'],
-        json.loads(ticket_response)['createdDate']['jira'],
-        username,
-        email,
-        summary_str
-    )
+
+    try:
+        if (category == 'Rivanna HPC' and allocation_type == "Purchase Service Units"):
+            update_paid_su_requests_info_table(ticket_response, form_elements_dict, desc_str, project_ticket_route, app.config['PAID_SU_REQUESTS_INFO_TABLE'])
+        elif (category == 'Storage'):
+            if (storage_choice == 'Research Project'):
+                update_project_storage_request_info_table(ticket_response, form_elements_dict, desc_str, project_ticket_route, app.config['PROJECT_STORAGE_REQUEST_INFO_TABLE'])
+            elif (storage_choice == 'Research Standard'):
+                update_standard_storage_request_info_table(ticket_response, form_elements_dict, desc_str, project_ticket_route, app.config['STANDARD_STORAGE_REQUEST_INFO_TABLE'])
+        else:
+            aws_service.update_dynamodb_jira_tracking(
+                json.loads(ticket_response)['issueKey'],
+                json.loads(ticket_response)['createdDate']['jira'],
+                username,
+                email,
+                summary_str
+            )
+    except Exception as e:
+        # Log and handle any unexpected errors
+        app.log_exception(e)
+        print(f"Error: An error occurred. Details: {e}")
 
     if category == 'Deans Allocation':
         email_service.send_hpc_allocation_confirm_email(
@@ -195,6 +226,105 @@ def _process_support_request(form_elements_dict, service_host, version):
     return ticket_response
 
 
+def update_paid_su_requests_info_table(ticket_response, form_elements_dict, desc_str, project_ticket_route, table_name):
+    try:
+        ticket_id = json.loads(ticket_response)['issueKey']
+        today = datetime.date.today()
+        formatted_date = today.strftime("%Y-%m-%d")
+        table_data = {
+                    'ticket_id': ticket_id,
+                    'date': formatted_date,
+                    'company': form_elements_dict.get('company', ''),
+                    'business_unit': form_elements_dict.get('business_unit', ''),
+                    'cost_center': form_elements_dict.get('cost_center', ''),
+                    'fund': form_elements_dict.get('fund2', ''),
+                    'gift': form_elements_dict.get('gift', ''),
+                    'grant': form_elements_dict.get('grant', ''),
+                    'designated': form_elements_dict.get('designated', ''),
+                    'project': form_elements_dict.get('project', ''),
+                    'program': form_elements_dict.get('program', ''),
+                    'function': form_elements_dict.get('function', ''),
+                    'activity': form_elements_dict.get('activity', ''),
+                    'assignee': form_elements_dict.get('name', ''),
+                    'owner_name': form_elements_dict.get('name', ''),
+                    'owner_uid': form_elements_dict.get('username', ''),
+                    'allocation_name': form_elements_dict.get('allocation_type', ''),
+                    'group_name': form_elements_dict.get('group_name', ''),
+                    'project_name': project_ticket_route[0],
+                    'descrition': desc_str
+                }
+        result = aws_service.insert_into_dynamodb(table_name, table_data)
+    except Exception as e:
+        app.log_exception(e)
+        print("Details: {e}")
+
+
+def update_project_storage_request_info_table(ticket_response, form_elements_dict, desc_str, project_ticket_route, table_name):
+    try:
+        ticket_id = json.loads(ticket_response)['issueKey']
+        today = datetime.date.today()
+        formatted_date = today.strftime("%Y-%m-%d")
+        table_data = {
+                    'ticket_id': ticket_id,
+                    'date': formatted_date,
+                    'company': form_elements_dict.get('company', ''),
+                    'business_unit': form_elements_dict.get('business_unit', ''),
+                    'cost_center': form_elements_dict.get('cost_center', ''),
+                    'fund': form_elements_dict.get('fund2', ''),
+                    'gift': form_elements_dict.get('gift', ''),
+                    'grant': form_elements_dict.get('grant', ''),
+                    'designated': form_elements_dict.get('designated', ''),
+                    'project': form_elements_dict.get('project', ''),
+                    'program': form_elements_dict.get('program', ''),
+                    'function': form_elements_dict.get('function', ''),
+                    'activity': form_elements_dict.get('activity', ''),
+                    'assignee': form_elements_dict.get('name', ''),
+                    'owner_name': form_elements_dict.get('name', ''),
+                    'owner_uid': form_elements_dict.get('username', ''),
+                    'allocation_name': form_elements_dict.get('allocation_type', ''),
+                    'group_name': form_elements_dict.get('group_name', ''),
+                    'project_name': project_ticket_route[0],
+                    'descrition': desc_str
+                }
+        result = aws_service.insert_into_dynamodb(table_name, table_data)
+    except Exception as e:
+        app.log_exception(e)
+        print("Details: {e}")
+
+
+def update_standard_storage_request_info_table(ticket_response, form_elements_dict, desc_str, project_ticket_route, table_name):
+    try:
+        ticket_id = json.loads(ticket_response)['issueKey']
+        today = datetime.date.today()
+        formatted_date = today.strftime("%Y-%m-%d")
+        table_data = {
+                    'ticket_id': ticket_id,
+                    'date': formatted_date,
+                    'company': form_elements_dict.get('company', ''),
+                    'business_unit': form_elements_dict.get('business_unit', ''),
+                    'cost_center': form_elements_dict.get('cost_center', ''),
+                    'fund': form_elements_dict.get('fund2', ''),
+                    'gift': form_elements_dict.get('gift', ''),
+                    'grant': form_elements_dict.get('grant', ''),
+                    'designated': form_elements_dict.get('designated', ''),
+                    'project': form_elements_dict.get('project', ''),
+                    'program': form_elements_dict.get('program', ''),
+                    'function': form_elements_dict.get('function', ''),
+                    'activity': form_elements_dict.get('activity', ''),
+                    'assignee': form_elements_dict.get('name', ''),
+                    'owner_name': form_elements_dict.get('name', ''),
+                    'owner_uid': form_elements_dict.get('username', ''),
+                    'allocation_name': form_elements_dict.get('allocation_type', ''),
+                    'group_name': form_elements_dict.get('group_name', ''),
+                    'project_name': project_ticket_route[0],
+                    'descrition': desc_str
+                }
+        result = aws_service.insert_into_dynamodb(table_name, table_data)
+    except Exception as e:
+        app.log_exception(e)
+        print("Details: {e}")
+
+
 @app.route('/rest/<version>/general-support-request/', methods=['POST'])
 @app.route('/rest/general-support-request/', methods=['POST'])
 @limiter.limit("30 per hour")
@@ -240,6 +370,18 @@ def general_support_request(version='v2'):
                          'request: {}'.format(str(ex))]))
 
 
+@app.route('/rest/get_items/', methods=['GET'])
+def get_items():
+    try:
+        table_name = request.args.get('tableName')
+        date_str = request.args.get('date_str')
+        result = aws_service.get_items_from_dynamodb_by_date(table_name, date_str)
+        return jsonify(result)
+    except Exception as ex:
+        app.log_exception(ex)
+        print(ex)
+
+
 @app.route('/rest/<version>/get-all-customer-requests/', methods=['GET'])
 def get_all_customer_requests(version='v2'):
     try:
@@ -270,7 +412,8 @@ def hpc_allocation_request(version='v2'):
         f.remove(['ticket_id', 'message', 'status'])
         request_form = dict(request.form.items())
         request_form['category'] = "Rivanna HPC"
-
+        res = aws_service.get_item_from_dynamodb('jira_paid_su_requests_info_dev', 'RIV-13081')
+        print(res)
         print("Testing: "+str(request.host_url))
         response = json.loads(_process_support_request(
             request_form, request.host_url, version))
