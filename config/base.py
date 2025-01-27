@@ -133,7 +133,7 @@ if DEVELOPMENT:
         JIRA_PROJECT_REQUEST_TYPES[5]: 251,
         JIRA_PROJECT_REQUEST_TYPES[6]: 278,
     }
-    STANDARD_STORAGE_REQUEST_INFO_TABLE = 'jira_standard_storage_requests__dev'
+    STANDARD_STORAGE_REQUEST_INFO_TABLE = 'jira_standard_storage_requests_info_dev'
     PROJECT_STORAGE_REQUEST_INFO_TABLE = 'jira_project_storage_requests_info_dev'
     PAID_SU_REQUESTS_INFO_TABLE = 'jira_paid_su_requests_info_dev'
 

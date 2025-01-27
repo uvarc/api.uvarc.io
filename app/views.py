@@ -18,213 +18,27 @@ def unauthorized():
     ), 401)
 
 
-def _process_support_request(form_elements_dict, service_host, version):
-    jira_service_handler = JiraServiceHandler(app, version != "v1")
-    category = form_elements_dict['category']
-    if ('categories' in form_elements_dict):
-        category = form_elements_dict['categories']
-
-    request_title = form_elements_dict.get('request_title')
-    components = None
-    if('request_title' in form_elements_dict):
-        request_title = form_elements_dict['request_title']
-    is_rc_project = False
-    if "JIRA_PROJECT_TICKET_ROUTE" in form_elements_dict:
-        project_ticket_route = tuple(form_elements_dict.get(
-            "JIRA_PROJECT_TICKET_ROUTE").split('|'))
-        if(len(project_ticket_route) > 2):
-            components = project_ticket_route[2]
-    else:
-        is_rc_project = True
-        project_ticket_route =\
-            app.config['JIRA_CATEGORY_PROJECT_ROUTE_DICT'][
-                category.strip().title()]
-            
-    if ('allocation_type' in form_elements_dict):
-        allocation_type = form_elements_dict['allocation_type']
-    if ('storage-choice' in form_elements_dict):
-        storage_choice = form_elements_dict['storage-choice']
-
-    submitted_attribs = list(form_elements_dict)
-    desc_str = ''
-    desc_html_str = ''
-    name = None
-    email = None
-    username = None
-    department = ''
-    school = ''
-    discipline = ''
-    discipline_other = ''
-    cost_center = ''
-    format_attribs_order = ['name', 'email', 'uid',
-                            'department', 'school', 'discipline', 'discipline-other', 'category', 'description', 'cost-center']
-    for attrib in format_attribs_order:
-        if (attrib in submitted_attribs):
-            if (attrib == 'category'):
-                value = category
-            else:
-                value = form_elements_dict[attrib]
-                if (attrib == 'name'):
-                    name = value
-                if (attrib == 'email'):
-                    email = value
-                if (attrib == 'username'):
-                    username = value
-                if attrib == 'department':
-                    department = value
-                if attrib == 'school':
-                    school = value
-                if attrib == 'discipline':
-                    discipline = value
-                if attrib == 'discipline-other':
-                    discipline_other = value
-                if attrib == 'cost-center':
-                    cost_center = value
-            if attrib != 'department' and attrib != 'school' and attrib != 'discipline' and attrib != 'discipline-other' :
-                desc_str = ''.join([desc_str, '{}: {}\n'.format(
-                    str(attrib).strip().title(), value)])
-                desc_html_str = ''.join([desc_html_str, '{}: {} \n\r'.format(
-                    str(attrib).strip().title(), value)])
-            submitted_attribs.remove(attrib)
-
-    drop_attribs = [
-        'op', 'categories', 'request_title',
-        'request-title', 'JIRA_PROJECT_TICKET_ROUTE',
-        'REQUEST_CLIENT'
-    ]
-    submitted_attribs = list(set(submitted_attribs) - set(drop_attribs))
-    
-    if (category == 'Rivanna HPC' or category == 'Storage'):
-        special_fields = [
-          'company', 'business_unit', 'cost_center', 'fund', 'gift', 
-          'grant', 'designated', 'project', 'program', 'function', 
-          'activity', 'assignee', 'owner_name', 'owner_uid', 
-          'allocation_name', 'group_name', 'project_name']
-        submitted_attribs = list(set(submitted_attribs) - set(special_fields))
-    
-    for attrib in sorted(submitted_attribs):
-        desc_str = ''.join([desc_str, '{}: {}\n'.format(
-            str(attrib).strip().title(), form_elements_dict[attrib])])
-        desc_html_str = ''.join([desc_html_str, '{}: {} \n\r'.format(
-            str(attrib).strip().title(), form_elements_dict[attrib])])
-    if request_title is not None:
-        summary_str = request_title
-    else:
-        summary_str = '{} Request'.format(category)
-
-    #if (allocation_type == "Purchase Service Units"):
-    #    reDefineattributes(form_elements_dict, desc_str)
-    
-    # ret = jira_service_handler.create_new_customer(
-    #             name='SDS RC',
-    #             email='SDS_RC@virginia.edu',
-    #         )
-
-    if (name is not None and name != '' and email is not None and email != ''):
-        try:
-            jira_service_handler.create_new_customer(
-                name=name,
-                email=email,
-            )            
-        except Exception as ex:
-            app.log_exception(ex)
-            print(ex)
-    participants = None
-    if department.lower().startswith('ds-') or 'data science' in department.lower() or 'data science' in discipline.lower():
-        participants = app.config['STORAGE_SPONSOR_EMAIL_LOOKUP']['DS']
-    elif category == 'Storage':
-        if cost_center in BII_COST_CENTERS and ((not department.lower().startswith('ds-')) and 'data science' not in department.lower()):
-            participants = app.config['STORAGE_SPONSOR_EMAIL_LOOKUP']['BII']
-
-    # ticket_response = '{"issueKey":"RIV-1082"}'
-    ticket_response = jira_service_handler.create_new_ticket(
-        reporter=email if '@' not in email else email.split('@')[0],
-        participants=participants,
-        project_name=project_ticket_route[0],
-        request_type=project_ticket_route[1],
-        components=components,
-        summary=summary_str,
-        desc=desc_str,
-        department=department,
-        school=school,
-        discipline=discipline if discipline != 'other' else discipline_other,
-        is_rc_project=is_rc_project
-    )
-
-    app.logger.info(ticket_response)
-    print('Ticket Response: ' + str(ticket_response))
-
+def update_dynamo_db_tables(ticket_response, form_elements_dict, desc_str, project_ticket_route):
     try:
+        if ('allocation_type' in form_elements_dict):
+            allocation_type = form_elements_dict['allocation_type']
+        if ('storage-choice' in form_elements_dict):
+            storage_choice = form_elements_dict['storage-choice']
+        if ('category' in form_elements_dict):
+            category = form_elements_dict['category']
+
         if (category == 'Rivanna HPC' and allocation_type == "Purchase Service Units"):
             update_paid_su_requests_info_table(ticket_response, form_elements_dict, desc_str, project_ticket_route, app.config['PAID_SU_REQUESTS_INFO_TABLE'])
         elif (category == 'Storage'):
             if (storage_choice == 'Research Project'):
+                app.config['PAID_SU_REQUESTS_INFO_TABLE']
                 update_project_storage_request_info_table(ticket_response, form_elements_dict, desc_str, project_ticket_route, app.config['PROJECT_STORAGE_REQUEST_INFO_TABLE'])
             elif (storage_choice == 'Research Standard'):
+                app.config['PAID_SU_REQUESTS_INFO_TABLE']
                 update_standard_storage_request_info_table(ticket_response, form_elements_dict, desc_str, project_ticket_route, app.config['STANDARD_STORAGE_REQUEST_INFO_TABLE'])
-        else:
-            aws_service.update_dynamodb_jira_tracking(
-                json.loads(ticket_response)['issueKey'],
-                json.loads(ticket_response)['createdDate']['jira'],
-                username,
-                email,
-                summary_str
-            )
     except Exception as e:
-        # Log and handle any unexpected errors
         app.log_exception(e)
-        print(f"Error: An error occurred. Details: {e}")
-
-    if category == 'Deans Allocation':
-        email_service.send_hpc_allocation_confirm_email(
-            from_email_address=form_elements_dict['email'],
-            to_email_address=app.config['ALLOCATION_SPONSOR_EMAIL_LOOKUP'][form_elements_dict['sponsor']],
-            subject=summary_str,
-            ticket_id=json.loads(ticket_response)['issueKey'],
-            callback_host=service_host,
-            content_dict=form_elements_dict
-        )
-
-        jira_service_handler.add_ticket_comment(json.loads(
-            ticket_response)['issueKey'], 'Approval request sent to the sponsor for confirmation')
-    elif category == 'Storage':
-        if cost_center in BII_COST_CENTERS and department.lower() != 'ds-data science':
-            customer = json.loads(jira_service_handler.get_customer(app.config['STORAGE_SPONSOR_EMAIL_LOOKUP']['BII'][0]))
-            if 'emailAddress' in customer:
-                to_email_address = customer['emailAddress']
-                email_service.send_storage_request_confirm_email(
-                    from_email_address=form_elements_dict['email'],
-                    to_email_address=to_email_address,
-                    subject=summary_str,
-                    ticket_id=json.loads(ticket_response)['issueKey'],
-                    callback_host=service_host,
-                    content_dict=form_elements_dict
-                )
-            else:
-                raise Exception(customer)
-
-    cc_email_addresses_list = None
-    if ('financial-contact' in form_elements_dict
-        and form_elements_dict['financial-contact'] is not None
-            and form_elements_dict['financial-contact'] != ''):
-        cc_email_addresses_list = [form_elements_dict['financial-contact']]
-    if ((form_elements_dict.get('ptao1') is not None and form_elements_dict['ptao1'].lstrip() != '' and
-         form_elements_dict.get('ptao2') is not None and form_elements_dict['ptao2'].lstrip() != '' and
-         form_elements_dict.get('ptao3') is not None and form_elements_dict['ptao3'].lstrip() != '' and
-         form_elements_dict.get('ptao4') is not None and form_elements_dict['ptao4'].lstrip() != '') or 
-            (form_elements_dict.get('ptao') is not None and form_elements_dict['ptao'].lstrip() != '')):
-        pass
-        # email_service.send_purchase_ack_email(
-        #     from_email_address='hpc-support@virginia.edu',
-        #     to_email_address=form_elements_dict['email'],
-        #     cc_email_addresses=cc_email_addresses_list,
-        #     subject=summary_str,
-        #     ticket_id=json.loads(ticket_response)['issueKey'],
-        #     content_dict=form_elements_dict
-        # )
-
-    return ticket_response
-
+        print("Details: {e}")
 
 def update_paid_su_requests_info_table(ticket_response, form_elements_dict, desc_str, project_ticket_route, table_name):
     try:
@@ -325,6 +139,194 @@ def update_standard_storage_request_info_table(ticket_response, form_elements_di
         print("Details: {e}")
 
 
+def _process_support_request(form_elements_dict, service_host, version):
+    jira_service_handler = JiraServiceHandler(app, version != "v1")
+    category = form_elements_dict['category']
+    if ('categories' in form_elements_dict):
+        category = form_elements_dict['categories']
+
+    request_title = form_elements_dict.get('request_title')
+    components = None
+    if('request-title' in form_elements_dict):
+        request_title = form_elements_dict['request-title']
+    is_rc_project = False
+    if "JIRA_PROJECT_TICKET_ROUTE" in form_elements_dict:
+        project_ticket_route = tuple(form_elements_dict.get(
+            "JIRA_PROJECT_TICKET_ROUTE").split('|'))
+        if(len(project_ticket_route) > 2):
+            components = project_ticket_route[2]
+    else:
+        is_rc_project = True
+        project_ticket_route =\
+            app.config['JIRA_CATEGORY_PROJECT_ROUTE_DICT'][
+                category.strip().title()]
+
+    submitted_attribs = list(form_elements_dict)
+    desc_str = ''
+    desc_html_str = ''
+    name = None
+    email = None
+    username = None
+    department = ''
+    school = ''
+    discipline = ''
+    discipline_other = ''
+    cost_center = ''
+    format_attribs_order = ['name', 'email', 'uid',
+                            'department', 'school', 'discipline', 'discipline-other', 'category', 'description', 'cost-center']
+    for attrib in format_attribs_order:
+        if (attrib in submitted_attribs):
+            if(attrib == 'category'):
+                value = category
+            else:
+                value = form_elements_dict[attrib]
+                if(attrib == 'name'):
+                    name = value
+                if(attrib == 'email'):
+                    email = value
+                if(attrib == 'uid'):
+                    username = value
+                if attrib == 'department':
+                    department = value
+                if attrib == 'school':
+                    school = value
+                if attrib == 'discipline':
+                    discipline = value
+                if attrib == 'discipline-other':
+                    discipline_other = value
+                if attrib == 'cost-center':
+                    cost_center = value
+            if attrib != 'department' and attrib != 'school' and attrib != 'discipline' and attrib != 'discipline-other' :
+                desc_str = ''.join([desc_str, '{}: {}\n'.format(
+                    str(attrib).strip().title(), value)])
+                desc_html_str = ''.join([desc_html_str, '{}: {} \n\r'.format(
+                    str(attrib).strip().title(), value)])
+            submitted_attribs.remove(attrib)
+
+    drop_attribs = [
+        'op', 'categories', 'request_title',
+        'request-title', 'JIRA_PROJECT_TICKET_ROUTE',
+        'REQUEST_CLIENT'
+    ]
+    submitted_attribs = list(set(submitted_attribs) - set(drop_attribs))
+    for attrib in sorted(submitted_attribs):
+        desc_str = ''.join([desc_str, '{}: {}\n'.format(
+            str(attrib).strip().title(), form_elements_dict[attrib])])
+        desc_html_str = ''.join([desc_html_str, '{}: {} \n\r'.format(
+            str(attrib).strip().title(), form_elements_dict[attrib])])
+    if request_title is not None:
+        summary_str = request_title
+    else:
+        summary_str = '{} Request'.format(category)
+
+    #if (allocation_type == "Purchase Service Units"):
+    #    reDefineattributes(form_elements_dict, desc_str)
+    
+    # ret = jira_service_handler.create_new_customer(
+    #             name='SDS RC',
+    #             email='SDS_RC@virginia.edu',
+    #         )
+
+    if (name is not None and name != '' and email is not None and email != ''):
+        try:
+            jira_service_handler.create_new_customer(
+                name=name,
+                email=email,
+            )            
+        except Exception as ex:
+            app.log_exception(ex)
+            print(ex)
+    participants = None
+    if department.lower().startswith('ds-') or 'data science' in department.lower() or 'data science' in discipline.lower():
+        participants = app.config['STORAGE_SPONSOR_EMAIL_LOOKUP']['DS']
+    elif category == 'Storage':
+        if cost_center in BII_COST_CENTERS and ((not department.lower().startswith('ds-')) and 'data science' not in department.lower()):
+            participants = app.config['STORAGE_SPONSOR_EMAIL_LOOKUP']['BII']
+
+    # ticket_response = '{"issueKey":"RIV-1082"}'
+    ticket_response = jira_service_handler.create_new_ticket(
+        reporter=email if '@' not in email else email.split('@')[0],
+        participants=participants,
+        project_name=project_ticket_route[0],
+        request_type=project_ticket_route[1],
+        components=components,
+        summary=summary_str,
+        desc=desc_str,
+        department=department,
+        school=school,
+        discipline=discipline if discipline != 'other' else discipline_other,
+        is_rc_project=is_rc_project
+    )
+
+    app.logger.info(ticket_response)
+    print('Ticket Response: ' + str(ticket_response))
+
+    aws_service.update_dynamodb_jira_tracking(
+        json.loads(ticket_response)['issueKey'],
+        json.loads(ticket_response)['createdDate']['jira'],
+        username,
+        email,
+        summary_str
+    )
+
+    try:
+        update_dynamo_db_tables(ticket_response, form_elements_dict, desc_str, project_ticket_route)
+    except Exception as e:
+        # Log and handle any unexpected errors
+        app.log_exception(e)
+        print(f"Error: An error occurred. Details: {e}")
+
+    if category == 'Deans Allocation':
+        email_service.send_hpc_allocation_confirm_email(
+            from_email_address=form_elements_dict['email'],
+            to_email_address=app.config['ALLOCATION_SPONSOR_EMAIL_LOOKUP'][form_elements_dict['sponsor']],
+            subject=summary_str,
+            ticket_id=json.loads(ticket_response)['issueKey'],
+            callback_host=service_host,
+            content_dict=form_elements_dict
+        )
+
+        jira_service_handler.add_ticket_comment(json.loads(
+            ticket_response)['issueKey'], 'Approval request sent to the sponsor for confirmation')
+    elif category == 'Storage':
+        if cost_center in BII_COST_CENTERS and department.lower() != 'ds-data science':
+            customer = json.loads(jira_service_handler.get_customer(app.config['STORAGE_SPONSOR_EMAIL_LOOKUP']['BII'][0]))
+            if 'emailAddress' in customer:
+                to_email_address = customer['emailAddress']
+                email_service.send_storage_request_confirm_email(
+                    from_email_address=form_elements_dict['email'],
+                    to_email_address=to_email_address,
+                    subject=summary_str,
+                    ticket_id=json.loads(ticket_response)['issueKey'],
+                    callback_host=service_host,
+                    content_dict=form_elements_dict
+                )
+            else:
+                raise Exception(customer)
+
+    cc_email_addresses_list = None
+    if ('financial-contact' in form_elements_dict
+        and form_elements_dict['financial-contact'] is not None
+            and form_elements_dict['financial-contact'] != ''):
+        cc_email_addresses_list = [form_elements_dict['financial-contact']]
+    if ((form_elements_dict.get('ptao1') is not None and form_elements_dict['ptao1'].lstrip() != '' and
+         form_elements_dict.get('ptao2') is not None and form_elements_dict['ptao2'].lstrip() != '' and
+         form_elements_dict.get('ptao3') is not None and form_elements_dict['ptao3'].lstrip() != '' and
+         form_elements_dict.get('ptao4') is not None and form_elements_dict['ptao4'].lstrip() != '') or 
+            (form_elements_dict.get('ptao') is not None and form_elements_dict['ptao'].lstrip() != '')):
+        pass
+        # email_service.send_purchase_ack_email(
+        #     from_email_address='hpc-support@virginia.edu',
+        #     to_email_address=form_elements_dict['email'],
+        #     cc_email_addresses=cc_email_addresses_list,
+        #     subject=summary_str,
+        #     ticket_id=json.loads(ticket_response)['issueKey'],
+        #     content_dict=form_elements_dict
+        # )
+
+    return ticket_response
+
+
 @app.route('/rest/<version>/general-support-request/', methods=['POST'])
 @app.route('/rest/general-support-request/', methods=['POST'])
 @limiter.limit("30 per hour")
@@ -412,8 +414,6 @@ def hpc_allocation_request(version='v2'):
         f.remove(['ticket_id', 'message', 'status'])
         request_form = dict(request.form.items())
         request_form['category'] = "Rivanna HPC"
-        res = aws_service.get_item_from_dynamodb('jira_paid_su_requests_info_dev', 'RIV-13081')
-        print(res)
         print("Testing: "+str(request.host_url))
         response = json.loads(_process_support_request(
             request_form, request.host_url, version))
