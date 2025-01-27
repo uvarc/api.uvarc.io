@@ -259,6 +259,7 @@ def _process_support_request(form_elements_dict, service_host, version):
 
     app.logger.info(ticket_response)
     print('Ticket Response: ' + str(ticket_response))
+
     aws_service.update_dynamodb_jira_tracking(
         json.loads(ticket_response)['issueKey'],
         json.loads(ticket_response)['createdDate']['jira'],
