@@ -218,9 +218,6 @@ def _process_support_request(form_elements_dict, service_host, version):
     else:
         summary_str = '{} Request'.format(category)
 
-    #if (allocation_type == "Purchase Service Units"):
-    #    reDefineattributes(form_elements_dict, desc_str)
-    
     # ret = jira_service_handler.create_new_customer(
     #             name='SDS RC',
     #             email='SDS_RC@virginia.edu',
