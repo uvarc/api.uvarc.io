@@ -160,7 +160,6 @@ def _process_support_request(form_elements_dict, service_host, version):
         project_ticket_route =\
             app.config['JIRA_CATEGORY_PROJECT_ROUTE_DICT'][
                 category.strip().title()]
-
     submitted_attribs = list(form_elements_dict)
     desc_str = ''
     desc_html_str = ''
@@ -260,7 +259,6 @@ def _process_support_request(form_elements_dict, service_host, version):
 
     app.logger.info(ticket_response)
     print('Ticket Response: ' + str(ticket_response))
-
     aws_service.update_dynamodb_jira_tracking(
         json.loads(ticket_response)['issueKey'],
         json.loads(ticket_response)['createdDate']['jira'],
@@ -414,6 +412,7 @@ def hpc_allocation_request(version='v2'):
         f.remove(['ticket_id', 'message', 'status'])
         request_form = dict(request.form.items())
         request_form['category'] = "Rivanna HPC"
+
         print("Testing: "+str(request.host_url))
         response = json.loads(_process_support_request(
             request_form, request.host_url, version))
