@@ -31,14 +31,13 @@ def update_dynamo_db_tables(ticket_response, form_elements_dict, desc_str, proje
             update_paid_su_requests_info_table(ticket_response, form_elements_dict, desc_str, project_ticket_route, app.config['PAID_SU_REQUESTS_INFO_TABLE'])
         elif (category == 'Storage'):
             if (storage_choice == 'Research Project'):
-                app.config['PAID_SU_REQUESTS_INFO_TABLE']
                 update_project_storage_request_info_table(ticket_response, form_elements_dict, desc_str, project_ticket_route, app.config['PROJECT_STORAGE_REQUEST_INFO_TABLE'])
             elif (storage_choice == 'Research Standard'):
-                app.config['PAID_SU_REQUESTS_INFO_TABLE']
                 update_standard_storage_request_info_table(ticket_response, form_elements_dict, desc_str, project_ticket_route, app.config['STANDARD_STORAGE_REQUEST_INFO_TABLE'])
     except Exception as e:
         app.log_exception(e)
         print("Details: {e}")
+
 
 def update_paid_su_requests_info_table(ticket_response, form_elements_dict, desc_str, project_ticket_route, table_name):
     try:
