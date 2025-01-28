@@ -20,6 +20,7 @@ def unauthorized():
 
 def update_dynamo_db_tables(ticket_response, form_elements_dict, desc_str, project_ticket_route):
     try:
+        app.logger.info("form_elements:{form_elements_dict}".format(form_elements_dict=form_elements_dict))
         if 'category' in form_elements_dict:
             category = form_elements_dict['category']
         if 'allocation_type' in form_elements_dict:
@@ -38,7 +39,7 @@ def update_dynamo_db_tables(ticket_response, form_elements_dict, desc_str, proje
                 app.logger.info(f"table_name:{table_name}")
                 update_paid_su_requests_info_table(ticket_response, form_elements_dict, desc_str, project_ticket_route, table_name)
             else:
-                app.logger.warning(f"Invalid allocation_type: {allocation_type}. No updates performed.")
+                app.logger.info(f"Invalid allocation_type: {allocation_type}. No updates performed.")
         elif category == 'Storage':
             if storage_choice == 'Research Project':
                 table_name = app.config['PROJECT_STORAGE_REQUEST_INFO_TABLE']
@@ -49,10 +50,10 @@ def update_dynamo_db_tables(ticket_response, form_elements_dict, desc_str, proje
                 app.logger.info(f"table_name:{table_name}")
                 update_standard_storage_request_info_table(ticket_response, form_elements_dict, desc_str, project_ticket_route, table_name)
             else:
-                app.logger.warning(f"Invalid storage choice: {storage_choice}. No updates performed.")
+                app.logger.info(f"Invalid storage choice: {storage_choice}. No updates performed.")
 
         else:
-            app.logger.warning(f"Category '{category}' not recognized. No updates performed.")
+            app.logger.info(f"Category '{category}' not recognized. No updates performed.")
     except Exception as e:
         app.log_exception(e)
         print("Details: {e}")
