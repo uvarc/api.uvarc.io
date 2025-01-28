@@ -23,7 +23,7 @@ def update_dynamo_db_tables(ticket_response, form_elements_dict, desc_str, proje
         app.logger.info("form_elements:{form_elements_dict}".format(form_elements_dict=form_elements_dict))
         if 'category' in form_elements_dict:
             category = form_elements_dict['category']
-        if 'allocation_type' in form_elements_dict:
+        if 'Allocation Type' in form_elements_dict:
             allocation_type = form_elements_dict['Allocation Type']
         if 'storage-choice' in form_elements_dict:
             storage_choice = form_elements_dict['storage-choice']
@@ -100,21 +100,21 @@ def update_project_storage_request_info_table(ticket_response, form_elements_dic
         table_data = {
                     'ticket_id': ticket_id,
                     'date': formatted_date,
-                    'company': form_elements_dict.get('company', ''),
-                    'business_unit': form_elements_dict.get('business_unit', ''),
-                    'cost_center': form_elements_dict.get('cost_center', ''),
-                    'fund': form_elements_dict.get('fund2', ''),
+                    'company': form_elements_dict.get('company-id', ''),
+                    'business_unit': form_elements_dict.get('business-unit', ''),
+                    'cost_center': form_elements_dict.get('cost-center', ''),
+                    'fund': form_elements_dict.get('fund', ''),
                     'gift': form_elements_dict.get('gift', ''),
                     'grant': form_elements_dict.get('grant', ''),
                     'designated': form_elements_dict.get('designated', ''),
-                    'project': form_elements_dict.get('project', ''),
+                    'project': form_elements_dict.get('project-title', ''),
                     'program': form_elements_dict.get('program', ''),
                     'function': form_elements_dict.get('function', ''),
                     'activity': form_elements_dict.get('activity', ''),
                     'assignee': form_elements_dict.get('name', ''),
                     'owner_name': form_elements_dict.get('name', ''),
-                    'owner_uid': form_elements_dict.get('username', ''),
-                    'allocation_name': form_elements_dict.get('allocation_type', ''),
+                    'owner_uid': form_elements_dict.get('uid', ''),
+                    'allocation_name': form_elements_dict.get('Allocation Type', ''),
                     'group_name': form_elements_dict.get('group_name', ''),
                     'project_name': project_ticket_route[0],
                     'descrition': desc_str
@@ -133,21 +133,21 @@ def update_standard_storage_request_info_table(ticket_response, form_elements_di
         table_data = {
                     'ticket_id': ticket_id,
                     'date': formatted_date,
-                    'company': form_elements_dict.get('company', ''),
-                    'business_unit': form_elements_dict.get('business_unit', ''),
-                    'cost_center': form_elements_dict.get('cost_center', ''),
-                    'fund': form_elements_dict.get('fund2', ''),
+                    'company': form_elements_dict.get('company-id', ''),
+                    'business_unit': form_elements_dict.get('business-unit', ''),
+                    'cost_center': form_elements_dict.get('cost-center', ''),
+                    'fund': form_elements_dict.get('fund', ''),
                     'gift': form_elements_dict.get('gift', ''),
                     'grant': form_elements_dict.get('grant', ''),
                     'designated': form_elements_dict.get('designated', ''),
-                    'project': form_elements_dict.get('project', ''),
+                    'project': form_elements_dict.get('project-title', ''),
                     'program': form_elements_dict.get('program', ''),
                     'function': form_elements_dict.get('function', ''),
                     'activity': form_elements_dict.get('activity', ''),
                     'assignee': form_elements_dict.get('name', ''),
                     'owner_name': form_elements_dict.get('name', ''),
-                    'owner_uid': form_elements_dict.get('username', ''),
-                    'allocation_name': form_elements_dict.get('allocation_type', ''),
+                    'owner_uid': form_elements_dict.get('uid', ''),
+                    'allocation_name': form_elements_dict.get('Allocation Type', ''),
                     'group_name': form_elements_dict.get('group_name', ''),
                     'project_name': project_ticket_route[0],
                     'descrition': desc_str
