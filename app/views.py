@@ -20,20 +20,39 @@ def unauthorized():
 
 def update_dynamo_db_tables(ticket_response, form_elements_dict, desc_str, project_ticket_route):
     try:
-        if ('allocation_type' in form_elements_dict):
-            allocation_type = form_elements_dict['allocation_type']
-        if ('storage-choice' in form_elements_dict):
-            storage_choice = form_elements_dict['storage-choice']
-        if ('category' in form_elements_dict):
+        if 'category' in form_elements_dict:
             category = form_elements_dict['category']
+        if 'allocation_type' in form_elements_dict:
+            allocation_type = form_elements_dict['allocation_type']
+        if 'storage-choice' in form_elements_dict:
+            storage_choice = form_elements_dict['storage-choice']
 
-        if (category == 'Rivanna HPC' and allocation_type == "Purchase Service Units"):
-            update_paid_su_requests_info_table(ticket_response, form_elements_dict, desc_str, project_ticket_route, app.config['PAID_SU_REQUESTS_INFO_TABLE'])
-        elif (category == 'Storage'):
-            if (storage_choice == 'Research Project'):
-                update_project_storage_request_info_table(ticket_response, form_elements_dict, desc_str, project_ticket_route, app.config['PROJECT_STORAGE_REQUEST_INFO_TABLE'])
-            elif (storage_choice == 'Research Standard'):
-                update_standard_storage_request_info_table(ticket_response, form_elements_dict, desc_str, project_ticket_route, app.config['STANDARD_STORAGE_REQUEST_INFO_TABLE'])
+        if category is None:
+            app.logger.warning("category not found in form_elements_dict")
+            print("Error: 'category' not found in form_elements_dict.")
+            return
+
+        if category == 'Rivanna HPC':
+            if allocation_type == "Purchase Service Units":
+                table_name = app.config['PAID_SU_REQUESTS_INFO_TABLE']
+                app.logger.info(f"table_name:{table_name}")
+                update_paid_su_requests_info_table(ticket_response, form_elements_dict, desc_str, project_ticket_route, table_name)
+            else:
+                app.logger.warning(f"Invalid allocation_type: {allocation_type}. No updates performed.")
+        elif category == 'Storage':
+            if storage_choice == 'Research Project':
+                table_name = app.config['PROJECT_STORAGE_REQUEST_INFO_TABLE']
+                app.logger.info(f"table_name:{table_name}")
+                update_project_storage_request_info_table(ticket_response, form_elements_dict, desc_str, project_ticket_route, table_name)
+            elif storage_choice == 'Research Standard':
+                table_name = app.config['STANDARD_STORAGE_REQUEST_INFO_TABLE']
+                app.logger.info(f"table_name:{table_name}")
+                update_standard_storage_request_info_table(ticket_response, form_elements_dict, desc_str, project_ticket_route, table_name)
+            else:
+                app.logger.warning(f"Invalid storage choice: {storage_choice}. No updates performed.")
+
+        else:
+            app.logger.warning(f"Category '{category}' not recognized. No updates performed.")
     except Exception as e:
         app.log_exception(e)
         print("Details: {e}")
