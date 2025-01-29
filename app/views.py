@@ -159,15 +159,20 @@ def update_standard_storage_request_info_table(ticket_response, form_elements_di
     except Exception as e:
         app.log_exception(e)
         print("Details: {e}")
-        
+
 
 def updateFundingtype(funding_type, funding_number, table_data):
     funding_type_fields = ['project', 'gift', 'grant', 'designated']
     for key in funding_type_fields:
         table_data[key] = ''
-    # If the funding_type is valid, populate the corresponding field
-    if funding_type in funding_type_fields:
-        table_data[funding_type] = funding_number
+    if funding_type == 'Project':
+        table_data['project'] = funding_number
+    elif funding_type == 'Gift':
+        table_data['gift'] = funding_number
+    elif funding_type == 'Grant':
+        table_data['grant'] = funding_number
+    elif funding_type == 'Designated':
+        table_data['designated'] = funding_number
     return table_data
 
 
