@@ -64,6 +64,8 @@ def update_paid_su_requests_info_table(ticket_response, form_elements_dict, desc
         ticket_id = json.loads(ticket_response)['issueKey']
         today = datetime.date.today()
         formatted_date = today.strftime("%Y-%m-%d")
+        funding_type = form_elements_dict.get('funding-type', '')
+        funding_number = form_elements_dict.get('funding-number', '')
         table_data = {
                     'ticket_id': ticket_id,
                     'date': formatted_date,
@@ -71,10 +73,7 @@ def update_paid_su_requests_info_table(ticket_response, form_elements_dict, desc
                     'business_unit': form_elements_dict.get('business-unit', ''),
                     'cost_center': form_elements_dict.get('cost-center', ''),
                     'fund': form_elements_dict.get('fund', ''),
-                    'gift': form_elements_dict.get('gift', ''),
-                    'grant': form_elements_dict.get('grant', ''),
-                    'designated': form_elements_dict.get('designated', ''),
-                    'project': form_elements_dict.get('project-title', ''),
+                    'bill_amount': form_elements_dict.get('fdm-total', ''),
                     'program': form_elements_dict.get('program', ''),
                     'function': form_elements_dict.get('function', ''),
                     'activity': form_elements_dict.get('activity', ''),
@@ -82,10 +81,12 @@ def update_paid_su_requests_info_table(ticket_response, form_elements_dict, desc
                     'owner_name': form_elements_dict.get('name', ''),
                     'owner_uid': form_elements_dict.get('uid', ''),
                     'allocation_name': form_elements_dict.get('Allocation Type', ''),
-                    'group_name': form_elements_dict.get('group_name', ''),
+                    'financial-contact': form_elements_dict.get('financial-contact', ''),
+                    'group_name': form_elements_dict.get('su-allocation', ''),
                     'project_name': project_ticket_route[0],
                     'descrition': desc_str
                 }
+        table_data = updateFundingtype(funding_type, funding_number, table_data)
         result = aws_service.insert_into_dynamodb(table_name, table_data)
     except Exception as e:
         app.log_exception(e)
@@ -97,6 +98,8 @@ def update_project_storage_request_info_table(ticket_response, form_elements_dic
         ticket_id = json.loads(ticket_response)['issueKey']
         today = datetime.date.today()
         formatted_date = today.strftime("%Y-%m-%d")
+        funding_type = form_elements_dict.get('funding-type', '')
+        funding_number = form_elements_dict.get('funding-number', '')
         table_data = {
                     'ticket_id': ticket_id,
                     'date': formatted_date,
@@ -104,10 +107,7 @@ def update_project_storage_request_info_table(ticket_response, form_elements_dic
                     'business_unit': form_elements_dict.get('business-unit', ''),
                     'cost_center': form_elements_dict.get('cost-center', ''),
                     'fund': form_elements_dict.get('fund', ''),
-                    'gift': form_elements_dict.get('gift', ''),
-                    'grant': form_elements_dict.get('grant', ''),
-                    'designated': form_elements_dict.get('designated', ''),
-                    'project': form_elements_dict.get('project-title', ''),
+                    'bill_amount': form_elements_dict.get('fdm-total', ''),
                     'program': form_elements_dict.get('program', ''),
                     'function': form_elements_dict.get('function', ''),
                     'activity': form_elements_dict.get('activity', ''),
@@ -115,10 +115,12 @@ def update_project_storage_request_info_table(ticket_response, form_elements_dic
                     'owner_name': form_elements_dict.get('name', ''),
                     'owner_uid': form_elements_dict.get('uid', ''),
                     'allocation_name': form_elements_dict.get('Allocation Type', ''),
+                    'financial-contact': form_elements_dict.get('financial-contact', ''),
                     'group_name': form_elements_dict.get('group_name', ''),
                     'project_name': project_ticket_route[0],
                     'descrition': desc_str
                 }
+        table_data = updateFundingtype(funding_type, funding_number, table_data)
         result = aws_service.insert_into_dynamodb(table_name, table_data)
     except Exception as e:
         app.log_exception(e)
@@ -130,6 +132,8 @@ def update_standard_storage_request_info_table(ticket_response, form_elements_di
         ticket_id = json.loads(ticket_response)['issueKey']
         today = datetime.date.today()
         formatted_date = today.strftime("%Y-%m-%d")
+        funding_type = form_elements_dict.get('funding-type', '')
+        funding_number = form_elements_dict.get('funding-number', '')
         table_data = {
                     'ticket_id': ticket_id,
                     'date': formatted_date,
@@ -137,10 +141,7 @@ def update_standard_storage_request_info_table(ticket_response, form_elements_di
                     'business_unit': form_elements_dict.get('business-unit', ''),
                     'cost_center': form_elements_dict.get('cost-center', ''),
                     'fund': form_elements_dict.get('fund', ''),
-                    'gift': form_elements_dict.get('gift', ''),
-                    'grant': form_elements_dict.get('grant', ''),
-                    'designated': form_elements_dict.get('designated', ''),
-                    'project': form_elements_dict.get('project-title', ''),
+                    'bill_amount': form_elements_dict.get('fdm-total', ''),
                     'program': form_elements_dict.get('program', ''),
                     'function': form_elements_dict.get('function', ''),
                     'activity': form_elements_dict.get('activity', ''),
@@ -148,14 +149,26 @@ def update_standard_storage_request_info_table(ticket_response, form_elements_di
                     'owner_name': form_elements_dict.get('name', ''),
                     'owner_uid': form_elements_dict.get('uid', ''),
                     'allocation_name': form_elements_dict.get('Allocation Type', ''),
+                    'financial-contact': form_elements_dict.get('financial-contact', ''),
                     'group_name': form_elements_dict.get('group_name', ''),
                     'project_name': project_ticket_route[0],
                     'descrition': desc_str
                 }
+        table_data = updateFundingtype(funding_type, funding_number, table_data)
         result = aws_service.insert_into_dynamodb(table_name, table_data)
     except Exception as e:
         app.log_exception(e)
         print("Details: {e}")
+        
+
+def updateFundingtype(funding_type, funding_number, table_data):
+    funding_type_fields = ['project', 'gift', 'grant', 'designated']
+    for key in funding_type_fields:
+        table_data[key] = ''
+    # If the funding_type is valid, populate the corresponding field
+    if funding_type in funding_type_fields:
+        table_data[funding_type] = funding_number
+    return table_data
 
 
 def _process_support_request(form_elements_dict, service_host, version):
