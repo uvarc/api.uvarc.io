@@ -116,7 +116,7 @@ def update_project_storage_request_info_table(ticket_response, form_elements_dic
                     'owner_uid': form_elements_dict.get('uid', ''),
                     'allocation_name': form_elements_dict.get('Allocation Type', ''),
                     'financial-contact': form_elements_dict.get('financial-contact', ''),
-                    'group_name': form_elements_dict.get('group_name', ''),
+                    'group_name': form_elements_dict.get('mygroup-ownership', ''),
                     'project_name': project_ticket_route[0],
                     'descrition': desc_str
                 }
@@ -150,7 +150,7 @@ def update_standard_storage_request_info_table(ticket_response, form_elements_di
                     'owner_uid': form_elements_dict.get('uid', ''),
                     'allocation_name': form_elements_dict.get('Allocation Type', ''),
                     'financial-contact': form_elements_dict.get('financial-contact', ''),
-                    'group_name': form_elements_dict.get('group_name', ''),
+                    'group_name': form_elements_dict.get('mygroup-ownership', ''),
                     'project_name': project_ticket_route[0],
                     'descrition': desc_str
                 }
