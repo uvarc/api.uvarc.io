@@ -211,7 +211,7 @@ def validationForBillingInfo(form_elements_dict):
         app.logger.info(payload)
         response = requests.post(api_url, headers=headers, data=payload)
         app.logger.info("response:", response)
-        response_json = response.json()
+        response_json = response.json() 
         app.logger.info("response_json:", response_json)
         response_string = response_json[0]
         response_dict = json.loads(response_string)
