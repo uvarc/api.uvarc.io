@@ -204,15 +204,15 @@ def validationForBillingInfo(form_elements_dict):
         'assignee': form_elements_dict.get('assignee', '')
     }
     api_url = "https://uvarc-unified-service.hpc.virginia.edu/uvarc/api/resource/rcwebform/fdm/verify"
-    headers = {"Content-Type": "application/json"}
+    headers = {"Content-Type": "application/json", 'Origin': 'https://uvarc-api.pods.uvarc.io'}
     try:
         app.logger.info("starting to validation API")
         payload = json.dumps(billing_data)
         app.logger.info(payload)
         response = requests.post(api_url, headers=headers, data=payload)
-        app.logger.info(response)
-        response_json = response.json()
-        app.logger.info(response_json)
+        app.logger.info("response:", response)
+        response_json = response.json() 
+        app.logger.info("response_json:", response_json)
         response_string = response_json[0]
         response_dict = json.loads(response_string)
         if response_dict.get("Valid") == "true":
