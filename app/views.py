@@ -415,12 +415,12 @@ def _process_support_request(form_elements_dict, service_host, version):
 @limiter.limit("30 per hour")
 @limiter.limit("10 per minute")
 def general_support_request(version='v2'):
+    response_url = "http://localhost:1313/thank-you/?" if 'localhost' in request.host_url else "https://www.rc.virginia.edu/thank-you/?"
     try:
         f = furl.furl(request.referrer)
         f.remove(['ticket_id', 'message', 'status'])
         response = json.loads(_process_support_request(
             request.form, request.host_url, version))
-        response_url = "http://localhost:1313/thank-you/?" if 'localhost' in request.host_url else "https://www.rc.virginia.edu/thank-you/?"
         if ('REQUEST_CLIENT' in request.form
                 and request.form['REQUEST_CLIENT'] == 'ITHRIV'):
             return make_response(jsonify(
