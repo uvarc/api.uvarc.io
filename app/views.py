@@ -208,7 +208,9 @@ def validationForBillingInfo(form_elements_dict):
     try:
         payload = json.dumps(billing_data)
         response = requests.post(api_url, headers=headers, data=payload)
+        app.logger.info("respose:", response.text)
         response_json = response.json()
+        app.logger.info("respose:", response_json)
         response_string = response_json[0]
         response_dict = json.loads(response_string)
         if response_dict.get("Valid") == "true":
@@ -216,12 +218,12 @@ def validationForBillingInfo(form_elements_dict):
             return response_json
         else:
             error_message = response_dict.get("ErrorText")
-            raise ValueError(f"Billing validation failed: {error_message}")
+            #raise ValueError(f"Billing validation failed: {error_message}")
 
     except Exception as ex:
         app.log_exception(ex)
         print(ex)
-        raise ValueError(f"Error in billing validation: {str(ex)}")
+       # raise ValueError(f"Error in billing validation: {str(ex)}")
 
 
 def _process_support_request(form_elements_dict, service_host, version):
