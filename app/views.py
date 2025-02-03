@@ -4,6 +4,7 @@ from app.api import ALLOC_APPROVE_CONFIRM_TYPES, RC_SMALL_LOGO_URL, BII_COST_CEN
 from app import app, limiter, email_service, aws_service
 from itsdangerous import URLSafeTimedSerializer
 import furl
+import yaml
 from flask import json, jsonify, make_response, request, redirect, render_template
 from boto3.dynamodb.conditions import Key, Attr
 import sys
@@ -210,22 +211,18 @@ def validationForBillingInfo(form_elements_dict):
         payload = json.dumps(billing_data)
         app.logger.info(payload)
         response = requests.post(api_url, headers=headers, data=payload)
-        app.logger.info("response:", response)
-        response_json = response.json() 
-        app.logger.info("response_json:", response_json)
-        response_string = response_json[0]
-        response_dict = json.loads(response_string)
+        # app.logger.info("response:", response)
+        response_dict = eval(json.loads(response.text)[0])
         if response_dict.get("Valid") == "true":
             print("Billing validation successful.")
-            return response_json
         else:
             error_message = response_dict.get("ErrorText")
-            #raise ValueError(f"Billing validation failed: {error_message}")
+            raise ValueError(f"Billing validation failed: {error_message}")
 
     except Exception as ex:
         app.log_exception(ex)
         print(ex)
-       # raise ValueError(f"Error in billing validation: {str(ex)}")
+        raise ex
 
 
 def _process_support_request(form_elements_dict, service_host, version):
