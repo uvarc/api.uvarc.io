@@ -19,8 +19,10 @@ def unauthorized():
     ), 401)
 
 
-def update_dynamo_db_tables(ticket_response, form_elements_dict, desc_str, project_ticket_route):
-    try:
+def fetch_form_identity_info(form_elements_dict):
+        category = None
+        allocation_type = None
+        storage_choice = None
         app.logger.info("form_elements:{form_elements_dict}".format(form_elements_dict=form_elements_dict))
         if 'category' in form_elements_dict:
             category = form_elements_dict['category']
@@ -28,6 +30,20 @@ def update_dynamo_db_tables(ticket_response, form_elements_dict, desc_str, proje
             allocation_type = form_elements_dict['Allocation Type']
         if 'storage-choice' in form_elements_dict:
             storage_choice = form_elements_dict['storage-choice']
+        return category, allocation_type, storage_choice
+
+
+def update_dynamo_db_tables(ticket_response, form_elements_dict, desc_str, project_ticket_route):
+    try:
+        # app.logger.info("form_elements:{form_elements_dict}".format(form_elements_dict=form_elements_dict))
+        # if 'category' in form_elements_dict:
+        #     category = form_elements_dict['category']
+        # if 'Allocation Type' in form_elements_dict:
+        #     allocation_type = form_elements_dict['Allocation Type']
+        # if 'storage-choice' in form_elements_dict:
+        #     storage_choice = form_elements_dict['storage-choice']
+
+        category, allocation_type, storage_choice = fetch_form_identity_info(form_elements_dict)
 
         if category is None:
             app.logger.warning("category not found in form_elements_dict")
@@ -189,40 +205,42 @@ def updateFundingtype(form_elements_dict):
 
 
 def validationForBillingInfo(form_elements_dict):
-    fundingTypeData = updateFundingtype(form_elements_dict)
-    billing_data = {
-        'company': form_elements_dict.get('company-id', ''),
-        'cost_center': form_elements_dict.get('cost-center', ''),
-        'business_unit': form_elements_dict.get('business-unit', ''),
-        'fund': form_elements_dict.get('fund', ''),
-        'grant': fundingTypeData.get('grant', ''),
-        'gift': fundingTypeData.get('gift', ''),
-        'project': fundingTypeData.get('project', ''),
-        'designated': fundingTypeData.get('designated', ''),
-        'function': form_elements_dict.get('function', ''),
-        'program': form_elements_dict.get('program', ''),
-        'activity': form_elements_dict.get('activity', ''),
-        'assignee': form_elements_dict.get('assignee', '')
-    }
-    api_url = "https://uvarc-unified-service.hpc.virginia.edu/uvarc/api/resource/rcwebform/fdm/verify"
-    headers = {"Content-Type": "application/json", 'Origin': 'https://uvarc-api.pods.uvarc.io'}
-    try:
-        app.logger.info("starting to validation API")
-        payload = json.dumps(billing_data)
-        app.logger.info(payload)
-        response = requests.post(api_url, headers=headers, data=payload)
-        # app.logger.info("response:", response)
-        response_dict = eval(json.loads(response.text)[0])
-        if response_dict.get("Valid") == "true":
-            print("Billing validation successful.")
-        else:
-            error_message = response_dict.get("ErrorText")
-            raise ValueError(f"Billing validation failed: {error_message}")
+    category, allocation_type, storage_choice = fetch_form_identity_info(form_elements_dict)
+    if (category == 'Rivanna HPC' and allocation_type == "Purchase Service Units") or (category == 'Storage' and storage_choice in ['Research Standard','Research Project']):
+        fundingTypeData = updateFundingtype(form_elements_dict)
+        billing_data = {
+            'company': form_elements_dict.get('company-id', ''),
+            'cost_center': form_elements_dict.get('cost-center', ''),
+            'business_unit': form_elements_dict.get('business-unit', ''),
+            'fund': form_elements_dict.get('fund', ''),
+            'grant': fundingTypeData.get('grant', ''),
+            'gift': fundingTypeData.get('gift', ''),
+            'project': fundingTypeData.get('project', ''),
+            'designated': fundingTypeData.get('designated', ''),
+            'function': form_elements_dict.get('function', ''),
+            'program': form_elements_dict.get('program', ''),
+            'activity': form_elements_dict.get('activity', ''),
+            'assignee': form_elements_dict.get('assignee', '')
+        }
+        api_url = "https://uvarc-unified-service.hpc.virginia.edu/uvarc/api/resource/rcwebform/fdm/verify"
+        headers = {"Content-Type": "application/json", 'Origin': 'https://uvarc-api.pods.uvarc.io'}
+        try:
+            app.logger.info("starting to validation API")
+            payload = json.dumps(billing_data)
+            app.logger.info(payload)
+            response = requests.post(api_url, headers=headers, data=payload)
+            # app.logger.info("response:", response)
+            response_dict = eval(json.loads(response.text)[0])
+            if response_dict.get("Valid") == "true":
+                print("Billing validation successful.")
+            else:
+                error_message = response_dict.get("ErrorText")
+                raise ValueError(f"Billing validation failed: {error_message}")
 
-    except Exception as ex:
-        app.log_exception(ex)
-        print(ex)
-        raise ex
+        except Exception as ex:
+            app.log_exception(ex)
+            print(ex)
+            raise ex
 
 
 def _process_support_request(form_elements_dict, service_host, version):
@@ -415,12 +433,12 @@ def _process_support_request(form_elements_dict, service_host, version):
 @limiter.limit("30 per hour")
 @limiter.limit("10 per minute")
 def general_support_request(version='v2'):
+    response_url = "http://localhost:1313/thank-you/?" if 'localhost' in request.host_url else "https://www.rc.virginia.edu/thank-you/?"
     try:
         f = furl.furl(request.referrer)
         f.remove(['ticket_id', 'message', 'status'])
         response = json.loads(_process_support_request(
             request.form, request.host_url, version))
-        response_url = "http://localhost:1313/thank-you/?" if 'localhost' in request.host_url else "https://www.rc.virginia.edu/thank-you/?"
         if ('REQUEST_CLIENT' in request.form
                 and request.form['REQUEST_CLIENT'] == 'ITHRIV'):
             return make_response(jsonify(
