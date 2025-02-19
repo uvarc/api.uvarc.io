@@ -79,8 +79,8 @@ def update_dynamo_db_tables(ticket_response, form_elements_dict, desc_str, proje
 def update_paid_su_requests_info_table(ticket_response, form_elements_dict, desc_str, project_ticket_route, table_name):
     try:
         ticket_id = json.loads(ticket_response)['issueKey']
-        today = datetime.date.today()
-        formatted_date = today.strftime("%Y-%m-%d")
+        today = datetime.datetime.now()
+        formatted_date = today.strftime("%Y-%m-%d %H:%M:%S")
         fundingTypeData = updateFundingtype(form_elements_dict)
         table_data = {
                     'ticket_id': ticket_id,
@@ -115,8 +115,8 @@ def update_paid_su_requests_info_table(ticket_response, form_elements_dict, desc
 def update_project_storage_request_info_table(ticket_response, form_elements_dict, desc_str, project_ticket_route, table_name):
     try:
         ticket_id = json.loads(ticket_response)['issueKey']
-        today = datetime.date.today()
-        formatted_date = today.strftime("%Y-%m-%d")
+        today = datetime.datetime.now()
+        formatted_date = today.strftime("%Y-%m-%d %H:%M:%S")
         fundingTypeData = updateFundingtype(form_elements_dict)
         table_data = {
                     'ticket_id': ticket_id,
@@ -151,8 +151,8 @@ def update_project_storage_request_info_table(ticket_response, form_elements_dic
 def update_standard_storage_request_info_table(ticket_response, form_elements_dict, desc_str, project_ticket_route, table_name):
     try:
         ticket_id = json.loads(ticket_response)['issueKey']
-        today = datetime.date.today()
-        formatted_date = today.strftime("%Y-%m-%d")
+        today = datetime.datetime.now()
+        formatted_date = today.strftime("%Y-%m-%d %H:%M:%S")
         fundingTypeData = updateFundingtype(form_elements_dict)
         table_data = {
                     'ticket_id': ticket_id,
