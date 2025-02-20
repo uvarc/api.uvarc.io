@@ -326,7 +326,7 @@ def _process_support_request(form_elements_dict, service_host, version):
     #             name='SDS RC',
     #             email='SDS_RC@virginia.edu',
     #         )
-    response = validationForBillingInfo(form_elements_dict)
+    # response = validationForBillingInfo(form_elements_dict)
      
     if (name is not None and name != '' and email is not None and email != ''):
         try:
