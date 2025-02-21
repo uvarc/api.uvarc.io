@@ -21,7 +21,7 @@ class AWSServiceHandler:
             self.app.log_exception(ex)
             print(str(ex))
             raise ex
-        
+
     def update_dynamodb_jira_tracking(self, jira_issue_key, create_date, username, email, desc):
         try:
             dynamodb_session = boto3.Session(
