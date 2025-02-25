@@ -23,6 +23,7 @@ def fetch_form_identity_info(form_elements_dict):
         category = None
         allocation_type = None
         storage_choice = None
+        request_type = None
         app.logger.info("form_elements:{form_elements_dict}".format(form_elements_dict=form_elements_dict))
         if 'category' in form_elements_dict:
             category = form_elements_dict['category']
@@ -30,7 +31,10 @@ def fetch_form_identity_info(form_elements_dict):
             allocation_type = form_elements_dict['Allocation Type']
         if 'storage-choice' in form_elements_dict:
             storage_choice = form_elements_dict['storage-choice']
-        return category, allocation_type, storage_choice
+        # check for request type
+        if category == 'Storage' and 'type-of-request' in form_elements_dict:
+            request_type = form_elements_dict['type-of-request']
+        return category, allocation_type, storage_choice, request_type
 
 
 def update_dynamo_db_tables(ticket_response, form_elements_dict, desc_str, project_ticket_route):
@@ -43,7 +47,7 @@ def update_dynamo_db_tables(ticket_response, form_elements_dict, desc_str, proje
         # if 'storage-choice' in form_elements_dict:
         #     storage_choice = form_elements_dict['storage-choice']
 
-        category, allocation_type, storage_choice = fetch_form_identity_info(form_elements_dict)
+        category, allocation_type, storage_choice, request_type = fetch_form_identity_info(form_elements_dict)
 
         if category is None:
             app.logger.warning("category not found in form_elements_dict")
@@ -58,17 +62,19 @@ def update_dynamo_db_tables(ticket_response, form_elements_dict, desc_str, proje
             else:
                 app.logger.info(f"Invalid allocation_type: {allocation_type}. No updates performed.")
         elif category == 'Storage':
-            if storage_choice == 'Research Project':
-                table_name = app.config['PROJECT_STORAGE_REQUEST_INFO_TABLE']
-                app.logger.info(f"table_name:{table_name}")
-                update_project_storage_request_info_table(ticket_response, form_elements_dict, desc_str, project_ticket_route, table_name)
-            elif storage_choice == 'Research Standard':
-                table_name = app.config['STANDARD_STORAGE_REQUEST_INFO_TABLE']
-                app.logger.info(f"table_name:{table_name}")
-                update_standard_storage_request_info_table(ticket_response, form_elements_dict, desc_str, project_ticket_route, table_name)
+            if (request_type in ['new-storage', 'increase-storage', 'decrease-storage']):
+                if storage_choice == 'Research Project':
+                    table_name = app.config['PROJECT_STORAGE_REQUEST_INFO_TABLE']
+                    app.logger.info(f"table_name:{table_name}")
+                    update_project_storage_request_info_table(ticket_response, form_elements_dict, desc_str, project_ticket_route, table_name)
+                elif storage_choice == 'Research Standard':
+                    table_name = app.config['STANDARD_STORAGE_REQUEST_INFO_TABLE']
+                    app.logger.info(f"table_name:{table_name}")
+                    update_standard_storage_request_info_table(ticket_response, form_elements_dict, desc_str, project_ticket_route, table_name)
+                else:
+                    app.logger.info(f"Invalid storage choice: {storage_choice}. No updates performed.")
             else:
-                app.logger.info(f"Invalid storage choice: {storage_choice}. No updates performed.")
-
+                app.logger.info(f"for this requset_type {request_type} no updates required")
         else:
             app.logger.info(f"Category '{category}' not recognized. No updates performed.")
     except Exception as e:
@@ -205,8 +211,8 @@ def updateFundingtype(form_elements_dict):
 
 
 def validationForBillingInfo(form_elements_dict):
-    category, allocation_type, storage_choice = fetch_form_identity_info(form_elements_dict)
-    if (category == 'Rivanna HPC' and allocation_type == "Purchase Service Units") or (category == 'Storage' and storage_choice in ['Research Standard','Research Project']):
+    category, allocation_type, storage_choice, request_type = fetch_form_identity_info(form_elements_dict)
+    if (category == 'Rivanna HPC' and allocation_type == "Purchase Service Units") or (category == 'Storage' and storage_choice in ['Research Standard', 'Research Project'] and request_type in ['new-storage', 'increase-storage', 'decrease-storage']):
         fundingTypeData = updateFundingtype(form_elements_dict)
         billing_data = {
             'company': form_elements_dict.get('company-id', ''),
