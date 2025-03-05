@@ -47,6 +47,12 @@ def update_dynamo_db_tables(ticket_response, form_elements_dict, desc_str, proje
         # if 'storage-choice' in form_elements_dict:
         #     storage_choice = form_elements_dict['storage-choice']
 
+        #trimming the values in form_elements_dict before storing in to dynamodb
+        form_elements_dict = dict(form_elements_dict)
+        for key, value in form_elements_dict.items():
+            if isinstance(value, str):
+                form_elements_dict[key] = value.strip()
+
         category, allocation_type, storage_choice, request_type = fetch_form_identity_info(form_elements_dict)
 
         if category is None:
@@ -211,6 +217,12 @@ def updateFundingtype(form_elements_dict):
 
 
 def validationForBillingInfo(form_elements_dict):
+    #trimming the values in form_elements_dict before validating
+    form_elements_dict = dict(form_elements_dict)
+    for key, value in form_elements_dict.items():
+        if isinstance(value, str):
+            form_elements_dict[key] = value.strip()
+
     category, allocation_type, storage_choice, request_type = fetch_form_identity_info(form_elements_dict)
     if (category == 'Rivanna HPC' and allocation_type == "Purchase Service Units") or (category == 'Storage' and storage_choice in ['Research Standard', 'Research Project'] and request_type in ['new-storage', 'increase-storage', 'decrease-storage']):
         fundingTypeData = updateFundingtype(form_elements_dict)
