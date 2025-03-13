@@ -347,7 +347,7 @@ def _process_support_request(form_elements_dict, service_host, version):
     #             name='SDS RC',
     #             email='SDS_RC@virginia.edu',
     #         )
-    #response = validationForBillingInfo(form_elements_dict)
+    response = validationForBillingInfo(form_elements_dict)
 
     if (name is not None and name != '' and email is not None and email != ''):
         try:
@@ -383,7 +383,13 @@ def _process_support_request(form_elements_dict, service_host, version):
     app.logger.info(ticket_response)
     print('Ticket Response: ' + str(ticket_response))
     
-
+    aws_service.update_dynamodb_jira_tracking(
+        json.loads(ticket_response)['issueKey'],
+        json.loads(ticket_response)['createdDate']['jira'],
+        username,
+        email,
+        summary_str
+    )
 
     try:
         update_dynamo_db_tables(ticket_response, form_elements_dict, desc_str, project_ticket_route)
