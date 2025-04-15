@@ -112,9 +112,9 @@ def update_paid_su_requests_info_table(ticket_response, form_elements_dict, desc
                     'assignee': form_elements_dict.get('assignee', ''),
                     'owner_name': form_elements_dict.get('name', ''),
                     'owner_uid': form_elements_dict.get('uid', ''),
-                    'allocation_name': form_elements_dict.get('Allocation Type', ''),
+                    'allocation_name': form_elements_dict.get('su-allocation', ''),
                     'financial-contact': form_elements_dict.get('financial-contact', ''),
-                    'group_name': form_elements_dict.get('su-allocation', ''),
+                    'group_name': form_elements_dict.get('department', ''),
                     'project_name': project_ticket_route[0],
                     'descrition': desc_str
                 }
@@ -148,9 +148,9 @@ def update_project_storage_request_info_table(ticket_response, form_elements_dic
                     'assignee': form_elements_dict.get('assignee', ''),
                     'owner_name': form_elements_dict.get('name', ''),
                     'owner_uid': form_elements_dict.get('uid', ''),
-                    'allocation_name': form_elements_dict.get('Allocation Type', ''),
                     'financial-contact': form_elements_dict.get('financial-contact', ''),
                     'group_name': form_elements_dict.get('mygroup-ownership', ''),
+                    'share_name': form_elements_dict.get('shared-space-name', ''),
                     'project_name': project_ticket_route[0],
                     'descrition': desc_str
                 }
@@ -184,9 +184,9 @@ def update_standard_storage_request_info_table(ticket_response, form_elements_di
                     'assignee': form_elements_dict.get('assignee', ''),
                     'owner_name': form_elements_dict.get('name', ''),
                     'owner_uid': form_elements_dict.get('uid', ''),
-                    'allocation_name': form_elements_dict.get('Allocation Type', ''),
                     'financial-contact': form_elements_dict.get('financial-contact', ''),
                     'group_name': form_elements_dict.get('mygroup-ownership', ''),
+                    'share_name': form_elements_dict.get('shared-space-name', ''),
                     'project_name': project_ticket_route[0],
                     'descrition': desc_str
                 }
