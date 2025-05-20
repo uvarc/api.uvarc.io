@@ -149,7 +149,7 @@ if PRODUCTION:
         'seas': 'wbk3a@virginia.edu',
         'sds': 'vsh@virginia.edu',
         'hs': 'jcm6t@virginia.edu',
-        'other': 'nem2p@virginia.edu,rkc7h@virginia.edu'
+        'other': 'rkc7h@virginia.edu'
     }
     STORAGE_SPONSOR_EMAIL_LOOKUP = {
         'BII': ['bii_rc_billing'],
