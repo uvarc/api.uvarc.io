@@ -135,6 +135,7 @@ if DEVELOPMENT:
     }
     STANDARD_STORAGE_REQUEST_INFO_TABLE = 'jira_standard_storage_requests_info_dev'
     PROJECT_STORAGE_REQUEST_INFO_TABLE = 'jira_project_storage_requests_info_dev'
+    HIGH_SECURITY_STANDARD_STORAGE_REQUEST_INFO_TABLE = 'jira_high_seurity_standard_storage_requests_info_dev'
     PAID_SU_REQUESTS_INFO_TABLE = 'jira_paid_su_requests_info_dev'
 
     CUSTOMFIELD_VALUES = ('customfield_13076', 'customfield_13096', 'customfield_13090')
@@ -178,6 +179,7 @@ if PRODUCTION:
     
     STANDARD_STORAGE_REQUEST_INFO_TABLE = 'jira_standard_storage_requests_info'
     PROJECT_STORAGE_REQUEST_INFO_TABLE = 'jira_project_storage_requests_info'
+    HIGH_SECURITY_STANDARD_STORAGE_REQUEST_INFO_TABLE = 'jira_high_seurity_standard_storage_requests_info'
     PAID_SU_REQUESTS_INFO_TABLE = 'jira_paid_su_requests_info'
     
     KONAMI_ENPOINT_DEFAULT_SENDER = 'nem2p@virginia.edu'
