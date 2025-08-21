@@ -77,6 +77,10 @@ def update_dynamo_db_tables(ticket_response, form_elements_dict, desc_str, proje
                     table_name = app.config['STANDARD_STORAGE_REQUEST_INFO_TABLE']
                     app.logger.info(f"table_name:{table_name}")
                     update_standard_storage_request_info_table(ticket_response, form_elements_dict, desc_str, project_ticket_route, table_name)
+                elif storage_choice == 'High-Security Research Standard':
+                    table_name = app.config['HIGH_SECURITY_STANDARD_STORAGE_REQUEST_INFO_TABLE']
+                    app.logger.info(f"table_name:{table_name}")
+                    update_high_security_standard_storage_request_info_table(ticket_response, form_elements_dict, desc_str, project_ticket_route, table_name)
                 else:
                     app.logger.info(f"Invalid storage choice: {storage_choice}. No updates performed.")
             else:
@@ -196,6 +200,42 @@ def update_standard_storage_request_info_table(ticket_response, form_elements_di
         print("Details: {e}")
 
 
+def update_high_security_standard_storage_request_info_table(ticket_response, form_elements_dict, desc_str, project_ticket_route, table_name):
+    try:
+        ticket_id = json.loads(ticket_response)['issueKey']
+        today = datetime.datetime.now()
+        formatted_date = today.strftime("%Y-%m-%d %H:%M:%S")
+        fundingTypeData = updateFundingtype(form_elements_dict)
+        table_data = {
+                    'ticket_id': ticket_id,
+                    'date': formatted_date,
+                    'company': form_elements_dict.get('company-id', ''),
+                    'business_unit': form_elements_dict.get('business-unit', ''),
+                    'cost_center': form_elements_dict.get('cost-center', ''),
+                    'fund': form_elements_dict.get('fund', ''),
+                    'grant': fundingTypeData.get('grant', ''),
+                    'gift': fundingTypeData.get('gift', ''),
+                    'project': fundingTypeData.get('project', ''),
+                    'designated': fundingTypeData.get('designated', ''),
+                    'bill_amount': form_elements_dict.get('fdm-total', ''),
+                    'program': form_elements_dict.get('program', ''),
+                    'function': form_elements_dict.get('function', ''),
+                    'activity': form_elements_dict.get('activity', ''),
+                    'assignee': form_elements_dict.get('assignee', ''),
+                    'owner_name': form_elements_dict.get('name', ''),
+                    'owner_uid': form_elements_dict.get('uid', ''),
+                    'financial-contact': form_elements_dict.get('financial-contact', ''),
+                    'group_name': form_elements_dict.get('mygroup-ownership', ''),
+                    'share_name': form_elements_dict.get('shared-space-name', ''),
+                    'project_name': project_ticket_route[0],
+                    'descrition': desc_str
+                }
+        result = aws_service.insert_into_dynamodb(table_name, table_data)
+    except Exception as e:
+        app.log_exception(e)
+        print("Details: {e}")
+
+
 def updateFundingtype(form_elements_dict):
     funding_type = form_elements_dict.get('funding-type', '')
     funding_number = form_elements_dict.get('funding-number', '')
@@ -224,7 +264,7 @@ def validationForBillingInfo(form_elements_dict):
             form_elements_dict[key] = value.strip()
 
     category, allocation_type, storage_choice, request_type = fetch_form_identity_info(form_elements_dict)
-    if (category == 'Rivanna HPC' and allocation_type == "Purchase Service Units") or (category == 'Storage' and storage_choice in ['Research Standard', 'Research Project'] and request_type in ['new-storage', 'increase-storage', 'decrease-storage']):
+    if (category == 'Rivanna HPC' and allocation_type == "Purchase Service Units") or (category == 'Storage' and storage_choice in ['Research Standard', 'Research Project', 'High-Security Research Standard'] and request_type in ['new-storage', 'increase-storage', 'decrease-storage']):
         fundingTypeData = updateFundingtype(form_elements_dict)
         billing_data = {
             'company': form_elements_dict.get('company-id', ''),
