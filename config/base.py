@@ -47,7 +47,7 @@ JIRA_PROJECT_REQUEST_TYPES = (
     'CHASE_GET_IT_HELP',
     'ACCORD_SUPPORT_TECHNICAL_SUPPORT',
     'DATA_ANALYTICS_CONSULTING',
-    'ITHRIV_CONCIERGE_INQUIRY',
+    'ITHRIV_CONCIERGE_INQUIRY'
 )
 
 JIRA_PROJECT_INFO_LOOKUP = {
@@ -88,7 +88,7 @@ JIRA_CATEGORY_PROJECT_ROUTE_DICT = {
     'Accord Support': (JIRA_PROJECTS[5], JIRA_PROJECT_REQUEST_TYPES[5]),
     'Data Analytics': (JIRA_PROJECTS[2], JIRA_PROJECT_REQUEST_TYPES[6]),
     'Container': (JIRA_PROJECTS[2], JIRA_PROJECT_REQUEST_TYPES[2]),
-    'Dedicated Resources': (JIRA_PROJECTS[0], JIRA_PROJECT_REQUEST_TYPES[0]),
+    'Dedicated Resources': (JIRA_PROJECTS[0], JIRA_PROJECT_REQUEST_TYPES[0])
 }
 
 # SMTP Email Settings
@@ -136,6 +136,7 @@ if DEVELOPMENT:
     STANDARD_STORAGE_REQUEST_INFO_TABLE = 'jira_standard_storage_requests_info_dev'
     PROJECT_STORAGE_REQUEST_INFO_TABLE = 'jira_project_storage_requests_info_dev'
     HIGH_SECURITY_STANDARD_STORAGE_REQUEST_INFO_TABLE = 'jira_high_security_standard_storage_requests_info_dev'
+    HIGH_SECURITY_PROJECT_STORAGE_REQUEST_INFO_TABLE = 'jira_high_security_project_storage_requests_info_dev'
     PAID_SU_REQUESTS_INFO_TABLE = 'jira_paid_su_requests_info_dev'
 
     CUSTOMFIELD_VALUES = ('customfield_13076', 'customfield_13096', 'customfield_13090')
@@ -180,6 +181,7 @@ if PRODUCTION:
     STANDARD_STORAGE_REQUEST_INFO_TABLE = 'jira_standard_storage_requests_info'
     PROJECT_STORAGE_REQUEST_INFO_TABLE = 'jira_project_storage_requests_info'
     HIGH_SECURITY_STANDARD_STORAGE_REQUEST_INFO_TABLE = 'jira_high_security_standard_storage_requests_info'
+    HIGH_SECURITY_PROJECT_STORAGE_REQUEST_INFO_TABLE = 'jira_high_security_project_storage_requests_info'
     PAID_SU_REQUESTS_INFO_TABLE = 'jira_paid_su_requests_info'
     
     KONAMI_ENPOINT_DEFAULT_SENDER = 'nem2p@virginia.edu'
