@@ -303,7 +303,7 @@ def validationForBillingInfo(form_elements_dict):
             form_elements_dict[key] = value.strip()
 
     category, allocation_type, storage_choice, request_type = fetch_form_identity_info(form_elements_dict)
-    if (category == 'Rivanna HPC' and allocation_type == "Purchase Service Units") or (category == 'Storage' and storage_choice in ['Research Standard', 'Research Project', 'High-Security Research Standard'] and request_type in ['new-storage', 'increase-storage', 'decrease-storage']):
+    if (category == 'Rivanna HPC' and allocation_type == "Purchase Service Units") or (category == 'Storage' and storage_choice in ['Research Standard', 'Research Project', 'High-Security Research Standard', 'High-Security Research Project'] and request_type in ['new-storage', 'increase-storage', 'decrease-storage']):
         fundingTypeData = updateFundingtype(form_elements_dict)
         billing_data = {
             'company': form_elements_dict.get('company-id', ''),
