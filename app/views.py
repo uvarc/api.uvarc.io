@@ -319,7 +319,7 @@ def validationForBillingInfo(form_elements_dict):
             'activity': form_elements_dict.get('activity', ''),
             'assignee': form_elements_dict.get('assignee', '')
         }
-        api_url = "https://uvarc-unified-service-prod.k8s.rc.virginia.edu/uvarc/api/resource/rcwebform/fdm/verify"
+        api_url = "https://uvarc-unified-service.hpc.virginia.edu/uvarc/api/resource/rcwebform/fdm/verify"
         headers = {"Content-Type": "application/json", 'Origin': 'https://uvarc-api.pods.uvarc.io'}
         try:
             app.logger.info("starting to validation API")
