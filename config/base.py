@@ -119,31 +119,31 @@ if DEVELOPMENT:
     }
     
     JIRA_PROJECT_INFO_LOOKUP = {
-        JIRA_PROJECTS[0]: 41,
+        JIRA_PROJECTS[0]: 34,
         JIRA_PROJECTS[1]: 38,
         JIRA_PROJECTS[2]: 39,
-        JIRA_PROJECTS[3]: 43,
-        JIRA_PROJECTS[4]: 12,
-        JIRA_PROJECTS[5]: 33,
+        JIRA_PROJECTS[3]: 59,
+        JIRA_PROJECTS[4]: 12, # ???
+        JIRA_PROJECTS[5]: 57,
     }
 
     JIRA_PROJECT_REQUEST_TYPE_LOOKUP = {
-        JIRA_PROJECT_REQUEST_TYPES[0]: 303,
-        JIRA_PROJECT_REQUEST_TYPES[1]: 274,
-        JIRA_PROJECT_REQUEST_TYPES[2]: 279,
-        JIRA_PROJECT_REQUEST_TYPES[3]: 311,
+        JIRA_PROJECT_REQUEST_TYPES[0]: 50,
+        JIRA_PROJECT_REQUEST_TYPES[1]: 75,
+        JIRA_PROJECT_REQUEST_TYPES[2]: 81,
+        JIRA_PROJECT_REQUEST_TYPES[3]: 237,
         JIRA_PROJECT_REQUEST_TYPES[4]: 106,
-        JIRA_PROJECT_REQUEST_TYPES[5]: 251,
-        JIRA_PROJECT_REQUEST_TYPES[6]: 278,
-        JIRA_PROJECT_REQUEST_TYPES[8]: 590,
+        JIRA_PROJECT_REQUEST_TYPES[5]: 220,
+        JIRA_PROJECT_REQUEST_TYPES[6]: 79,
+        JIRA_PROJECT_REQUEST_TYPES[8]: 84
     }
+    CUSTOMFIELD_VALUES = ('customfield_10263', 'customfield_10265', 'customfield_10281')
+
     STANDARD_STORAGE_REQUEST_INFO_TABLE = 'jira_standard_storage_requests_info_dev'
     PROJECT_STORAGE_REQUEST_INFO_TABLE = 'jira_project_storage_requests_info_dev'
     HIGH_SECURITY_STANDARD_STORAGE_REQUEST_INFO_TABLE = 'jira_high_security_standard_storage_requests_info_dev'
     HIGH_SECURITY_PROJECT_STORAGE_REQUEST_INFO_TABLE = 'jira_high_security_project_storage_requests_info_dev'
     PAID_SU_REQUESTS_INFO_TABLE = 'jira_paid_su_requests_info_dev'
-
-    CUSTOMFIELD_VALUES = ('customfield_13076', 'customfield_13096', 'customfield_13090')
 
     KONAMI_ENPOINT_DEFAULT_SENDER = 'rkc7h@virginia.edu'
     KONAMI_ENPOINT_DEFAULT_RECEIVER = 'rkc7h@virginia.edu'

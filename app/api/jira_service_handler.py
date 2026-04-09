@@ -109,6 +109,12 @@ class JiraServiceHandler:
             return r.text
         except Exception as ex:
             print("Couldn't create customer {} in JIRA: {}".format(name, str(ex)))
+    
+    def computing_id_to_email(self, computing_id):
+        if type(computing_id) != str:
+            return None
+
+        return computing_id if computing_id.endswith('@virginia.edu') else computing_id + '@virginia.edu'
 
     def create_new_ticket(
         self,
@@ -138,9 +144,11 @@ class JiraServiceHandler:
                 "summary": summary,
                 "description": desc
             },
-            "requestParticipants": participants,
-            "raiseOnBehalfOf": reporter
+            "requestParticipants": self.computing_id_to_email(participants),
+            "raiseOnBehalfOf": self.computing_id_to_email(reporter)
         }
+
+        print(payload)
 
         if is_rc_project and (department != '' or school != ''):
             payload["requestFieldValues"][self._customfield[0]] = department
