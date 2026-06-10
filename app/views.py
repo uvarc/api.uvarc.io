@@ -531,7 +531,7 @@ def _process_support_request(form_elements_dict, service_host, version):
 @limiter.limit("30 per hour")
 @limiter.limit("10 per minute")
 def general_support_request(version='v2'):
-    response_url = "http://localhost:1313/thank-you/?" if 'localhost' in request.host_url else "https://www.rc.virginia.edu/thank-you/?"
+    response_url = "http://localhost:1313/thank-you/?" if 'localhost' in request.host_url else "https://forms.rc.virginia.edu/thank-you/?"
     try:
         f = furl.furl(request.referrer)
         f.remove(['ticket_id', 'message', 'status'])
